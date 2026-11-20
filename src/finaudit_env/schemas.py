@@ -399,11 +399,15 @@ def parse_action(
                         d["submission"] = d.pop(sub_alias)
                         break
             if "submission" not in d and "findings" in d:
-                sub_dict: dict[str, Any] = {"findings": d.pop("findings")}
+                raw_findings_val = d.pop("findings")
+                if isinstance(raw_findings_val, dict) and "findings" in raw_findings_val:
+                    sub_dict = dict(raw_findings_val)
+                else:
+                    sub_dict = {"findings": raw_findings_val}
                 if "episode_id" in d:
-                    sub_dict["episode_id"] = d.pop("episode_id")
+                    sub_dict.setdefault("episode_id", d.pop("episode_id"))
                 elif default_episode_id:
-                    sub_dict["episode_id"] = default_episode_id
+                    sub_dict.setdefault("episode_id", default_episode_id)
                 d["submission"] = sub_dict
             elif isinstance(d.get("submission"), dict):
                 sub_copy = dict(d["submission"])
