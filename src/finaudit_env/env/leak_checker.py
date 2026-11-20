@@ -27,6 +27,7 @@ FORBIDDEN_SUBSTRINGS: tuple[str, ...] = (
     "generator_config",
     "causal_changes",
     "pytest-of-",
+    '"seed":',
 )
 
 FORBIDDEN_REGEXES: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -41,10 +42,12 @@ def extract_forbidden_tokens_from_truth(
     *,
     seed: int | None = None,
 ) -> set[str]:
-    """Extract dynamic secret tokens (e.g. issue_ids, evaluator notes, seed markers) from truth data."""
+    """Extract dynamic secret tokens (e.g. issue_ids, evaluator notes) from truth data."""
     tokens: set[str] = set()
-    if seed is not None and len(str(seed)) >= 5:
-        tokens.add(str(seed))
+    if seed is not None:
+        tokens.add(f"seed={seed}")
+        tokens.add(f'"seed": {seed}')
+        tokens.add(f'"seed":{seed}')
 
     if truth_data is None:
         return tokens

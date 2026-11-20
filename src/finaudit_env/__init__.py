@@ -1,10 +1,20 @@
 """FinAudit RL Environment package (`finaudit_env`).
 
-Provides shared Pydantic v2 data contracts, synthetic company generator,
-isolated RL audit environment, 1-to-1 finding matcher, terminal reward engine,
-and baseline policies.
+Reproducible financial audit simulator, causal error generator, read-only
+investigation environment, 1-to-1 finding matcher, and reward evaluator.
 """
 
-from finaudit_env.schemas import CURRENCY_EXPONENTS, SCHEMA_VERSION, IssueType
+from finaudit_env.env.core import AuditEnv, FinAuditEnv
+from finaudit_env.env.isolated_client import IsolatedFinAuditClient, IsolatedFinAuditEnv
+from finaudit_env.schemas import SCHEMA_VERSION
 
-__all__ = ["SCHEMA_VERSION", "CURRENCY_EXPONENTS", "IssueType"]
+__version__ = SCHEMA_VERSION
+
+__all__ = [
+    "__version__",
+    "SCHEMA_VERSION",
+    "FinAuditEnv",
+    "AuditEnv",
+    "IsolatedFinAuditEnv",
+    "IsolatedFinAuditClient",
+]

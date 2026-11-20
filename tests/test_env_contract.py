@@ -709,3 +709,32 @@ def test_21_isolated_client_eval_mode_and_bounded_errors_over_ipc(tmp_path: Path
         assert eval_res["reward"] == -1.0
         assert eval_res["invalid_structure"] is True
 
+
+def test_22_adversarial_id_queries_and_dynamic_reset_do_not_trigger_leak_crash(tmp_path: Path) -> None:
+    _write_sample_episode(tmp_path, num_ledger_rows=10)
+    env = FinAuditEnv(mode="train", episode_dir=tmp_path)
+    env.reset(seed=10000)  # 5-digit seed matching debit_minor=10000
+
+    # Querying forbidden filenames or issue IDs returns a redacted bounded error without crashing
+    obs1, r1, term1, trunc1, _ = env.step({"action": "get_document", "doc_id": "truth.json"})
+    assert "error" in obs1 and "<redacted_id>" in obs1["error"]
+    assert r1 == 0.0 and not term1 and not trunc1
+
+    obs2, r2, term2, trunc2, _ = env.step({"action": "get_record", "table": "ledger", "id": "ISS-SECRET-999"})
+    assert "error" in obs2 and "<redacted_id>" in obs2["error"]
+    assert r2 == 0.0 and not term2 and not trunc2
+
+    # Alternative tool wrapper and flat submit format support
+    obs3, r3, _, _, _ = env.step({"tool": "list_records", "args": {"table": "ledger", "cursor": 0, "limit": 2}})
+    assert r3 == 0.0 and len(obs3["result"]["items"]) == 2
+
+    obs4, r4, term4, _, _ = env.step({"action": "submit", "findings": []})
+    assert term4 is True and r4 == -1.0
+
+    # Dynamic reset without pre-built directory works with 5+ digit seed
+    dyn_env = FinAuditEnv(mode="train")
+    dyn_obs, dyn_info = dyn_env.reset(seed=12345, config={"num_standard_invoices": 8})
+    assert "manifest" in dyn_obs
+    assert "12345" not in dyn_info["episode_id"]
+
+

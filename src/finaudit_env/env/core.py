@@ -17,7 +17,11 @@ from pydantic import ValidationError
 
 from finaudit_env.env.calculator import CalculatorError, safe_calculate
 from finaudit_env.env.datastore import EpisodeDataStore
-from finaudit_env.env.leak_checker import assert_no_leaks, extract_forbidden_tokens_from_truth
+from finaudit_env.env.leak_checker import (
+    assert_no_leaks,
+    extract_forbidden_tokens_from_truth,
+    scan_payload_for_leaks,
+)
 from finaudit_env.schemas import (
     Action,
     CalculatorAction,
@@ -61,9 +65,13 @@ class FinAuditEnv:
         if timeout_seconds <= 0:
             raise ValueError("timeout_seconds must be positive.")
 
-        self.mode: str = "eval" if mode == "closed" else mode
-        self.max_steps: int = int(max_steps)
-        self.timeout_seconds: float = float(timeout_seconds)
+        self._default_mode: str = "eval" if mode == "closed" else mode
+        self._default_max_steps: int = int(max_steps)
+        self._default_timeout_seconds: float = float(timeout_seconds)
+
+        self.mode: str = self._default_mode
+        self.max_steps: int = self._default_max_steps
+        self.timeout_seconds: float = self._default_timeout_seconds
         self._default_episode_dir: Path | None = Path(episode_dir) if episode_dir is not None else None
         self._default_episode_data: dict[str, Any] | None = (
             copy.deepcopy(episode_data) if episode_data is not None else None
@@ -80,6 +88,7 @@ class FinAuditEnv:
         self._truncated: bool = False
         self._start_time: float = 0.0
         self._last_evaluation: dict[str, Any] | None = None
+        self._evaluator_log: list[str] = []
         self._trajectory: list[dict[str, Any]] = []
         self._is_reset: bool = False
 
@@ -153,6 +162,10 @@ class FinAuditEnv:
         """Reset environment state and return initial `(observation, info)`."""
         cfg = dict(config) if config is not None else {}
 
+        self.mode = self._default_mode
+        self.max_steps = self._default_max_steps
+        self.timeout_seconds = self._default_timeout_seconds
+
         if "mode" in cfg and cfg["mode"] in ("train", "eval", "closed"):
             self.mode = "eval" if cfg["mode"] == "closed" else cfg["mode"]
         if "max_steps" in cfg:
@@ -217,6 +230,7 @@ class FinAuditEnv:
         self._terminated = False
         self._truncated = False
         self._last_evaluation = None
+        self._evaluator_log = []
         self._trajectory = []
         self._start_time = time.monotonic()
         self._is_reset = True
@@ -239,6 +253,14 @@ class FinAuditEnv:
         )
         return observation, info
 
+    def _safe_id_for_error(self, raw_id: str) -> str:
+        """Sanitize a queried ID before embedding it in an error string so adversarial IDs cannot trigger leak failures."""
+        if not isinstance(raw_id, str) or len(raw_id) > 64:
+            return "<redacted_id>"
+        if scan_payload_for_leaks(raw_id, forbidden_tokens=self._forbidden_tokens):
+            return "<redacted_id>"
+        return raw_id
+
     def _build_step_info(self) -> dict[str, Any]:
         """Construct the public `info` dictionary without leaking closed truth or eval scores."""
         info: dict[str, Any] = {
@@ -257,6 +279,7 @@ class FinAuditEnv:
                 "f1": self._last_evaluation["f1"],
                 "reward": self._last_evaluation["reward"],
                 "invalid_structure": self._last_evaluation["invalid_structure"],
+                "error": self._last_evaluation.get("error"),
             }
         return info
 
@@ -338,13 +361,18 @@ class FinAuditEnv:
 
         # 3. Special handling for malformed `submit` payloads:
         # Section 05: "Неверная структура. Завершает эпизод с наградой -1 и ошибкой в журнале оценщика."
-        is_submit_attempt = (
-            isinstance(action, SubmitAction)
-            or (isinstance(action, dict) and action.get("action") == "submit")
+        is_submit_attempt = isinstance(action, SubmitAction) or (
+            isinstance(action, dict)
+            and (
+                action.get("action") == "submit"
+                or action.get("tool") == "submit"
+                or action.get("name") == "submit"
+                or action.get("type") == "submit"
+            )
         )
 
         try:
-            parsed_action = parse_action(action)
+            parsed_action = parse_action(action, default_episode_id=self._episode_id)
         except (ValidationError, TypeError, ValueError) as exc:
             self._step_count += 1
             if is_submit_attempt:
@@ -357,6 +385,8 @@ class FinAuditEnv:
                     inspection_steps=self._inspection_steps,
                 )
                 self._last_evaluation = eval_res
+                if eval_res.get("error"):
+                    self._evaluator_log.append(str(eval_res["error"]))
                 returned_reward = float(eval_res["reward"]) if self.mode == "train" else 0.0
                 obs = {
                     "error": "Invalid findings submission structure. Episode terminated with penalty.",
@@ -397,6 +427,8 @@ class FinAuditEnv:
             returned_reward = float(eval_res["reward"]) if self.mode == "train" else 0.0
 
             if eval_res["invalid_structure"]:
+                if eval_res.get("error"):
+                    self._evaluator_log.append(str(eval_res["error"]))
                 obs = {
                     "error": "Invalid findings submission (e.g. episode_id mismatch). Episode terminated.",
                     "steps_remaining": max(0, self.max_steps - self._step_count),
@@ -437,8 +469,9 @@ class FinAuditEnv:
                     record_id=parsed_action.id,
                 )
                 if record is None:
+                    safe_id = self._safe_id_for_error(parsed_action.id)
                     obs_payload["error"] = (
-                        f"Record '{parsed_action.id}' not found in table '{parsed_action.table}'."
+                        f"Record '{safe_id}' not found in table '{parsed_action.table}'."
                     )
                 else:
                     obs_payload["result"] = record
@@ -449,7 +482,8 @@ class FinAuditEnv:
             try:
                 doc = self._datastore.get_document(doc_id=parsed_action.doc_id)
                 if doc is None:
-                    obs_payload["error"] = f"Document '{parsed_action.doc_id}' not found."
+                    safe_doc_id = self._safe_id_for_error(parsed_action.doc_id)
+                    obs_payload["error"] = f"Document '{safe_doc_id}' not found."
                 else:
                     obs_payload["result"] = doc
             except ValueError as exc:
@@ -477,6 +511,10 @@ class FinAuditEnv:
     def get_last_evaluation(self) -> dict[str, Any] | None:
         """Return the internal evaluator scoring dictionary for the current/finished episode."""
         return copy.deepcopy(self._last_evaluation)
+
+    def get_evaluator_log(self) -> list[str]:
+        """Return a copy of the evaluator error log for the current episode."""
+        return list(self._evaluator_log)
 
     def get_trajectory(self) -> list[dict[str, Any]]:
         """Return a deep copy of recorded trajectory steps for the current episode."""

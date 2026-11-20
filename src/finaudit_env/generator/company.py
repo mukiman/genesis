@@ -8,6 +8,7 @@ satisfy accounting identities prior to causal error injection.
 from __future__ import annotations
 
 import datetime as dt
+import hashlib
 import random
 from typing import Any
 
@@ -111,7 +112,8 @@ def generate_clean_company(seed: int, config: dict[str, Any] | None = None) -> d
     cfg = dict(config or {})
     rng = random.Random(seed)
 
-    episode_id: str = str(cfg.get("episode_id", f"ep_clean_{seed:04d}"))
+    default_ep_hash = hashlib.sha256(f"finaudit_ep:{seed}".encode("utf-8")).hexdigest()[:8]
+    episode_id: str = str(cfg.get("episode_id", f"ep_gen_{default_ep_hash}"))
     base_currency: str = str(cfg.get("base_currency", "USD"))
     foreign_currencies: list[str] = list(
         cfg.get("foreign_currencies", [c for c in ["EUR", "GBP", "KZT", "JPY"] if c != base_currency][:2])

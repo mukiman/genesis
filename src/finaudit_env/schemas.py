@@ -211,6 +211,21 @@ class TruthIssue(StrictBaseModel):
     tolerance_minor: int = Field(default=1, ge=0, description="Allowed minor-unit tolerance for matching")
     notes: str | None = Field(default=None, description="Evaluator-only diagnostic note")
 
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_truth_issue_aliases(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+        d = dict(data)
+        if "valid_evidence_sets" not in d:
+            if "allowed_evidence_sets" in d:
+                d["valid_evidence_sets"] = d.pop("allowed_evidence_sets")
+            elif "evidence_sets" in d:
+                d["valid_evidence_sets"] = d.pop("evidence_sets")
+        if "tolerance_minor" not in d and "amount_tolerance_minor" in d:
+            d["tolerance_minor"] = d.pop("amount_tolerance_minor")
+        return d
+
     @field_validator("currency")
     @classmethod
     def validate_currency(cls, value: str) -> str:
@@ -337,10 +352,65 @@ Action = Annotated[
 ACTION_ADAPTER: TypeAdapter[Action] = TypeAdapter(Action)
 
 
-def parse_action(payload: dict[str, Any] | Action) -> Action:
+def parse_action(
+    payload: dict[str, Any] | Action,
+    *,
+    default_episode_id: str | None = None,
+) -> Action:
     """Validate and parse a raw dictionary or model into a discriminated `Action`."""
     if isinstance(payload, (ListRecordsAction, GetRecordAction, GetDocumentAction, CalculatorAction, SubmitAction)):
         return payload
+    if isinstance(payload, dict):
+        d = dict(payload)
+        # Support {"tool": "...", "args": {...}} or {"name": "...", "arguments": {...}} wrappers
+        if "action" not in d:
+            for key_alias in ("tool", "name", "type"):
+                if key_alias in d and isinstance(d[key_alias], str):
+                    d["action"] = d.pop(key_alias)
+                    break
+        for args_alias in ("args", "arguments", "params"):
+            if args_alias in d and isinstance(d[args_alias], dict):
+                nested_args = d.pop(args_alias)
+                for k, v in nested_args.items():
+                    d.setdefault(k, v)
+
+        act_name = d.get("action")
+        if act_name == "list_records":
+            if isinstance(d.get("cursor"), int) and not isinstance(d.get("cursor"), bool) and d["cursor"] >= 0:
+                d["cursor"] = str(d["cursor"])
+            if "limit" in d and d["limit"] is None:
+                d.pop("limit")
+        elif act_name == "get_record":
+            if "id" not in d and "record_id" in d:
+                d["id"] = d.pop("record_id")
+        elif act_name == "get_document":
+            if "doc_id" not in d:
+                if "document_id" in d:
+                    d["doc_id"] = d.pop("document_id")
+                elif "id" in d:
+                    d["doc_id"] = d.pop("id")
+        elif act_name == "calculator":
+            if "expression" not in d and "expr" in d:
+                d["expression"] = d.pop("expr")
+        elif act_name == "submit":
+            if "submission" not in d:
+                for sub_alias in ("findings.json", "findings_json"):
+                    if sub_alias in d and isinstance(d[sub_alias], dict):
+                        d["submission"] = d.pop(sub_alias)
+                        break
+            if "submission" not in d and "findings" in d:
+                sub_dict: dict[str, Any] = {"findings": d.pop("findings")}
+                if "episode_id" in d:
+                    sub_dict["episode_id"] = d.pop("episode_id")
+                elif default_episode_id:
+                    sub_dict["episode_id"] = default_episode_id
+                d["submission"] = sub_dict
+            elif isinstance(d.get("submission"), dict):
+                sub_copy = dict(d["submission"])
+                if "episode_id" not in sub_copy and "findings" in sub_copy and default_episode_id:
+                    sub_copy["episode_id"] = default_episode_id
+                d["submission"] = sub_copy
+        return ACTION_ADAPTER.validate_python(d)
     return ACTION_ADAPTER.validate_python(payload)
 
 

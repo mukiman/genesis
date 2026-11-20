@@ -18,11 +18,13 @@ from finaudit_env.build_datasets import load_episode_from_dir
 from finaudit_env.demo import build_demo_episode_data
 from finaudit_env.env.core import FinAuditEnv
 from finaudit_env.env.leak_checker import verify_trajectory_file
-from finaudit_env.generator.transforms import permute_and_remap_episode
+from finaudit_env.generator.transforms import permute_and_remap_episode, remap_submission_ids
 from finaudit_env.policies.flag_all_attack import FlagAllAttackPolicy
 from finaudit_env.policies.oracle import OraclePolicy
 from finaudit_env.policies.random_explorer import RandomExplorerPolicy
 from finaudit_env.policies.simple_reconciler import SimpleReconcilerPolicy
+from finaudit_env.schemas import FindingsSubmission
+from finaudit_env.scoring.reward import evaluate_submission
 
 
 def _discover_episode_configs(data_dir: Path | str) -> list[dict[str, Any]]:
@@ -120,18 +122,38 @@ def _run_paired_generalization_check(
         oracle_orig["evaluation"]["f1"] == oracle_perm["evaluation"]["f1"] == 1.0
         and abs(oracle_orig["evaluation"]["reward"] - oracle_perm["evaluation"]["reward"]) < 1e-9
     )
+
+    # Also verify that remapping the original Oracle submission through id_map matches permuted truth
+    orig_oracle_sub = FindingsSubmission.model_validate(oracle_orig["last_action"]["submission"])
+    remapped_oracle_sub = remap_submission_ids(orig_oracle_sub, id_map)
+    remapped_eval = evaluate_submission(
+        remapped_oracle_sub,
+        permuted_ep_data["truth"],
+        inspection_steps=oracle_orig["steps"] - 1,
+    )
+    oracle_remapped_answer_match = (
+        remapped_eval["f1"] == 1.0
+        and abs(remapped_eval["reward"] - oracle_orig["evaluation"]["reward"]) < 1e-9
+    )
+
     reconciler_invariant = (
         res_rec_1["evaluation"]["f1"] == res_rec_perm["evaluation"]["f1"]
         and abs(res_rec_1["evaluation"]["reward"] - res_rec_perm["evaluation"]["reward"]) < 1e-9
     )
 
-    passed = bool(exact_replay_match and oracle_invariant and reconciler_invariant)
+    passed = bool(
+        exact_replay_match
+        and oracle_invariant
+        and oracle_remapped_answer_match
+        and reconciler_invariant
+    )
     return {
         "pair_index": pair_index,
         "episode_id": str(orig_ep_data["manifest"].episode_id),
         "remapped_ids_count": len(id_map),
         "exact_replay_match": exact_replay_match,
         "oracle_invariant": oracle_invariant,
+        "oracle_remapped_answer_match": oracle_remapped_answer_match,
         "reconciler_invariant": reconciler_invariant,
         "oracle_f1": float(oracle_perm["evaluation"]["f1"]),
         "oracle_reward": float(oracle_perm["evaluation"]["reward"]),

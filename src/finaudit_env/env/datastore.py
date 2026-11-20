@@ -275,6 +275,8 @@ class EpisodeDataStore:
 
         if cursor is None or cursor == "":
             offset = 0
+        elif isinstance(cursor, int) and not isinstance(cursor, bool) and cursor >= 0:
+            offset = cursor
         else:
             if not isinstance(cursor, str) or not cursor.isdigit():
                 raise ValueError(f"Invalid pagination cursor '{cursor}'. Must be a non-negative integer string.")

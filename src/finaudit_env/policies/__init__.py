@@ -1,8 +1,19 @@
-"""Baseline policy adapters subpackage (`finaudit_env.policies`).
+"""Baseline policies for environment evaluation (`finaudit_env.policies`).
 
-Provides the 4 mandatory baseline policies for evaluator benchmarking:
-- `random_explorer`: Fixed-seed random investigation policy.
-- `simple_reconciler`: Rule-based baseline reconciliation policy.
-- `flag_all_attack`: Specification-gaming adversarial policy ("flag everything").
-- `oracle`: Evaluator-only ground-truth oracle policy verifying maximum reward.
+Includes `random_explorer`, `simple_reconciler`, `flag_all_attack`, and `oracle`.
+Owned by Participant 2 (`feat/env-scoring` branch).
 """
+
+from finaudit_env.policies.base import BasePolicy
+from finaudit_env.policies.flag_all_attack import FlagAllAttackPolicy
+from finaudit_env.policies.oracle import OraclePolicy
+from finaudit_env.policies.random_explorer import RandomExplorerPolicy
+from finaudit_env.policies.simple_reconciler import SimpleReconcilerPolicy
+
+__all__ = [
+    "BasePolicy",
+    "RandomExplorerPolicy",
+    "SimpleReconcilerPolicy",
+    "FlagAllAttackPolicy",
+    "OraclePolicy",
+]
