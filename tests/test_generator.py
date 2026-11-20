@@ -6,6 +6,7 @@ Stages 2-5 (`company`, `errors`, `transforms`, `verifier`, `build_datasets`).
 
 from __future__ import annotations
 
+from finaudit_env.generator.company import generate_clean_company
 from finaudit_env.generator.fx_utils import (
     convert_amount_minor,
     generate_fx_rates,
@@ -104,3 +105,36 @@ def test_lookup_fx_rate_policy_rules() -> None:
     assert resolve_effective_fx_date("2026-03-16T11:00:00+00:00", pol_pbd) == "2026-03-13"
     r_pbd = lookup_fx_rate(rows, "EUR", "USD", "2026-03-16T11:00:00+00:00", policy=pol_pbd)
     assert r_pbd.date == "2026-03-13"
+
+
+def test_clean_company_trial_balance_and_distractors() -> None:
+    ep1 = generate_clean_company(seed=777, config={"episode_id": "ep_test_777", "base_currency": "USD"})
+    ep2 = generate_clean_company(seed=777, config={"episode_id": "ep_test_777", "base_currency": "USD"})
+
+    # 1. Exact reproducibility for identical seed & config
+    assert ep1["manifest"].model_dump() == ep2["manifest"].model_dump()
+    assert [r.model_dump() for r in ep1["ledger"]] == [r.model_dump() for r in ep2["ledger"]]
+    assert [i.model_dump() for i in ep1["invoices"]] == [i.model_dump() for i in ep2["invoices"]]
+    assert [p.model_dump() for p in ep1["payments"]] == [p.model_dump() for p in ep2["payments"]]
+
+    # 2. Trial balance invariant: sum(debit_minor) == sum(credit_minor)
+    ledger = ep1["ledger"]
+    total_debit = sum(r.debit_minor for r in ledger)
+    total_credit = sum(r.credit_minor for r in ledger)
+    assert total_debit > 0
+    assert total_debit == total_credit
+    assert ep1["provenance"].pre_mutation_trial_balance_ok is True
+
+    # 3. Size limits compliance (200-2000 ledger rows, 20-200 documents)
+    total_docs = len(ep1["invoices"]) + len(ep1["payments"])
+    assert 200 <= len(ledger) <= 2000
+    assert 20 <= total_docs <= 200
+    assert ep1["manifest"].ledger_rows_count == len(ledger)
+    assert ep1["manifest"].invoices_count == len(ep1["invoices"])
+    assert ep1["manifest"].payments_count == len(ep1["payments"])
+
+    # 4. Clean episode has 0 errors in truth.json, but includes logged distractors
+    assert len(ep1["truth"].issues) == 0
+    distractor_events = [e for e in ep1["provenance"].events if e.stage == "distractor_injection"]
+    assert len(distractor_events) >= 5
+
