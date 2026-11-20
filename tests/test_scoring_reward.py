@@ -13,8 +13,17 @@ Covers all Section 05 and Section 10 ("Надёжность награды" - 25
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
+from finaudit_env.demo import build_demo_episode_data, run_demo
+from finaudit_env.env.core import FinAuditEnv
+from finaudit_env.policies.flag_all_attack import FlagAllAttackPolicy
+from finaudit_env.policies.oracle import OraclePolicy
+from finaudit_env.policies.random_explorer import RandomExplorerPolicy
+from finaudit_env.policies.simple_reconciler import SimpleReconcilerPolicy
+from finaudit_env.run_benchmark import run_benchmark
 from finaudit_env.schemas import Finding, FindingsSubmission, IssueType, TruthFile, TruthIssue
 from finaudit_env.scoring.matcher import (
     has_complete_valid_evidence,
@@ -419,3 +428,70 @@ def test_20_compute_metrics_and_reward_clipping_bounds() -> None:
     res = compute_metrics_and_reward(None, truth, inspection_steps=10, invalid_submission=True)
     assert res["reward"] == -1.0
     assert res["invalid_structure"] is True
+
+
+# ---------------------------------------------------------------------------
+# Baseline Policies, Demo, and Benchmark Verification Tests
+# ---------------------------------------------------------------------------
+
+
+def test_21_four_baseline_policies_ranking_on_erroneous_episode() -> None:
+    ep_data = build_demo_episode_data(seed=42)
+    cfg = {"episode_data": ep_data}
+    env = FinAuditEnv(mode="train")
+
+    oracle_res = OraclePolicy(truth=ep_data["truth"], seed=42).run_episode(env, seed=42, config=cfg)
+    reconciler_res = SimpleReconcilerPolicy(seed=42).run_episode(env, seed=42, config=cfg)
+    random_res = RandomExplorerPolicy(seed=42).run_episode(env, seed=42, config=cfg)
+    attack_res = FlagAllAttackPolicy(seed=42).run_episode(env, seed=42, config=cfg)
+
+    r_oracle = oracle_res["evaluation"]["reward"]
+    r_reconciler = reconciler_res["evaluation"]["reward"]
+    r_random = random_res["evaluation"]["reward"]
+    r_attack = attack_res["evaluation"]["reward"]
+
+    assert oracle_res["evaluation"]["f1"] == 1.0
+    assert reconciler_res["evaluation"]["f1"] == 1.0
+    assert r_oracle >= r_reconciler > 0.90
+    assert r_reconciler > r_random
+    assert r_reconciler > r_attack
+    assert r_attack < -0.50
+
+
+def test_22_baseline_policies_on_clean_episode() -> None:
+    ep_data = build_demo_episode_data(seed=77)
+    # Remove injected errors so the episode is completely clean
+    ep_data["truth"].issues = []
+    ep_data["invoices"] = [ep_data["invoices"][0]]
+    ep_data["payments"] = []
+    ep_data["ledger"] = ep_data["ledger"][:2]
+    cfg = {"episode_data": ep_data}
+    env = FinAuditEnv(mode="train")
+
+    oracle_res = OraclePolicy(truth=ep_data["truth"], seed=77).run_episode(env, seed=77, config=cfg)
+    reconciler_res = SimpleReconcilerPolicy(seed=77).run_episode(env, seed=77, config=cfg)
+    attack_res = FlagAllAttackPolicy(seed=77).run_episode(env, seed=77, config=cfg)
+
+    assert oracle_res["evaluation"]["f1"] == 1.0
+    assert reconciler_res["evaluation"]["f1"] == 1.0
+    assert reconciler_res["evaluation"]["reward"] > 0.95
+    assert attack_res["evaluation"]["f1"] == 0.0
+    assert attack_res["evaluation"]["reward"] == -1.0
+
+
+def test_23_demo_and_benchmark_runner_produce_leak_free_artifacts(tmp_path: Path) -> None:
+    demo_out = run_demo(seed=42)
+    assert "policies" in demo_out
+    assert set(demo_out["policies"].keys()) == {
+        "simple_reconciler",
+        "random_explorer",
+        "flag_all_attack",
+        "oracle",
+    }
+
+    report = run_benchmark(data_dir=tmp_path / "empty_data", artifacts_dir=tmp_path / "artifacts")
+    assert report["episodes_evaluated"] >= 1
+    assert report["trajectory_leak_violations"] == 0
+    assert (tmp_path / "artifacts" / "trajectories.jsonl").is_file()
+    assert (tmp_path / "artifacts" / "eval_report.json").is_file()
+
