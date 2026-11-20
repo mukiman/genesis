@@ -257,12 +257,30 @@ def inject_errors(
         cash_row, ar_row = pay_rows
         used_invoice_ids.add(target_inv.invoice_id)
 
-        old_recorded_minor = ar_row.credit_minor
-        # Record only ~60% of the payment in the ledger, leaving 40% unallocated
-        new_recorded_minor = max(1, (old_recorded_minor * 60) // 100)
-        if new_recorded_minor == old_recorded_minor:
-            new_recorded_minor = max(0, old_recorded_minor - 100)
-        discrepancy_minor = abs(old_recorded_minor - new_recorded_minor)
+        if pay_doc.currency == base_currency:
+            expected_pay_base = pay_doc.amount_minor
+        else:
+            fx_r = lookup_fx_rate(
+                fx_rows=fx_rows,
+                source_currency=pay_doc.currency,
+                target_currency=base_currency,
+                date=pay_doc.timestamp,
+                policy=policy,
+                invoice_issue_date=target_inv.issued_at,
+            )
+            expected_pay_base = convert_amount_minor(
+                amount_minor=pay_doc.amount_minor,
+                source_currency=pay_doc.currency,
+                target_currency=base_currency,
+                rate_str=fx_r.rate,
+                rounding_mode=policy.rounding_mode,
+            )
+
+        # Record only ~60% of the expected payment in the ledger, leaving 40% unallocated
+        new_recorded_minor = max(1, (expected_pay_base * 60) // 100)
+        if new_recorded_minor == expected_pay_base:
+            new_recorded_minor = max(0, expected_pay_base - 100)
+        discrepancy_minor = abs(expected_pay_base - new_recorded_minor)
 
         cash_row.debit_minor = new_recorded_minor
         ar_row.credit_minor = new_recorded_minor
@@ -284,7 +302,7 @@ def inject_errors(
             tolerance_minor=policy.amount_tolerance_minor,
             notes=(
                 f"Payment {pay_doc.payment_id} for {target_inv.invoice_id} partially allocated in ledger row "
-                f"{ar_row.row_id}: expected {old_recorded_minor}, recorded {new_recorded_minor}."
+                f"{ar_row.row_id}: expected {expected_pay_base}, recorded {new_recorded_minor}."
             ),
         )
         ep["truth"].issues.append(issue)
@@ -295,7 +313,7 @@ def inject_errors(
                 issue_id=iss_id,
                 issue_type=IssueType.UNALLOCATED_OR_PARTIAL_PAYMENT,
                 description=f"Reduced ledger settlement amount on {ar_row.row_id} for payment {pay_doc.payment_id}.",
-                before_state={"row_id": ar_row.row_id, "credit_minor": old_recorded_minor},
+                before_state={"row_id": ar_row.row_id, "credit_minor": expected_pay_base},
                 after_state={
                     "row_id": ar_row.row_id,
                     "credit_minor": new_recorded_minor,

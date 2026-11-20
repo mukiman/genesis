@@ -14,7 +14,9 @@ from finaudit_env.generator.fx_utils import (
     lookup_fx_rate,
     resolve_effective_fx_date,
 )
-from finaudit_env.schemas import IssueType, PolicyConfig
+from finaudit_env.generator.transforms import permute_and_remap_episode, remap_submission_ids
+from finaudit_env.generator.verifier import verify_episode
+from finaudit_env.schemas import Finding, FindingsSubmission, IssueType, PolicyConfig
 
 
 def test_fx_generation_determinism_and_padding() -> None:
@@ -190,5 +192,67 @@ def test_error_injection_four_types_and_interacting_scenarios() -> None:
 
     error_events = [e for e in mutated["provenance"].events if e.stage == "error_injection"]
     assert len(error_events) == 8
+
+
+def test_verifier_and_isomorphic_transforms() -> None:
+    clean = generate_clean_company(
+        seed=3030,
+        config={
+            "episode_id": "ep_ver_3030",
+            "base_currency": "USD",
+            "fx_rate_date_rule": "invoice_issue_date",
+        },
+    )
+    res_clean = verify_episode(clean)
+    assert res_clean["valid"] is True, f"Clean verification failed: {res_clean['errors']}"
+
+    mutated = inject_errors(
+        clean_episode=clean,
+        seed=3030,
+        error_config={
+            "duplicate_invoice": 1,
+            "unallocated_or_partial_payment": 1,
+            "fx_conversion_error": 1,
+            "period_cutoff_error": 1,
+            "interacting_scenarios": ["partial_fx_cutoff", "duplicate_fx_cutoff"],
+        },
+    )
+    res_mutated = verify_episode(mutated)
+    assert res_mutated["valid"] is True, f"Mutated verification failed: {res_mutated['errors']}"
+    assert res_mutated["issues_verified"] == 8
+
+    # Apply isomorphic ID remapping and row permutation
+    transformed, id_map = permute_and_remap_episode(mutated, seed=9999)
+    res_trans = verify_episode(transformed)
+    assert res_trans["valid"] is True, f"Transformed verification failed: {res_trans['errors']}"
+    assert res_trans["issues_verified"] == 8
+
+    # Ensure IDs actually changed and row order changed
+    orig_row_ids = [r.row_id for r in mutated["ledger"]]
+    trans_row_ids = [r.row_id for r in transformed["ledger"]]
+    assert set(orig_row_ids).isdisjoint(set(trans_row_ids))
+
+    # Build an Oracle submission on original episode, remap its IDs, and verify it matches transformed truth
+    oracle_sub = FindingsSubmission(
+        episode_id=mutated["episode_id"],
+        findings=[
+            Finding(
+                type=iss.type,
+                affected_ids=iss.affected_ids,
+                claimed_amount_minor=iss.expected_amount_minor,
+                currency=iss.currency,
+                evidence_ids=iss.valid_evidence_sets[0],
+                explanation="Oracle verification finding",
+            )
+            for iss in mutated["truth"].issues
+        ],
+    )
+    remapped_sub = remap_submission_ids(oracle_sub, id_map)
+    for finding, trans_iss in zip(remapped_sub.findings, transformed["truth"].issues):
+        assert finding.type == trans_iss.type
+        assert finding.affected_ids == trans_iss.affected_ids
+        assert finding.claimed_amount_minor == trans_iss.expected_amount_minor
+        assert finding.evidence_ids == trans_iss.valid_evidence_sets[0]
+
 
 
