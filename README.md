@@ -10,7 +10,7 @@
 
 ```bash
 git clone https://github.com/mukiman/genesis.git
-cd genesis/finaudit-rl-env
+cd genesis
 ```
 
 ### 2. Создание виртуального окружения (Python 3.11)
