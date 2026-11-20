@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0.0",
+  "episode_id": "ep_train_004",
+  "company_name": "Helios Industrial AG",
+  "base_currency": "EUR",
+  "period_start": "2026-04-01",
+  "period_end": "2026-04-30",
+  "timezone": "Europe/Berlin",
+  "rounding_mode": "HALF_EVEN",
+  "currency_exponents": {
+    "USD": 2,
+    "EUR": 2,
+    "GBP": 2,
+    "KZT": 2,
+    "JPY": 0,
+    "CHF": 2
+  },
+  "ledger_rows_count": 224,
+  "invoices_count": 37,
+  "payments_count": 40,
+  "fx_rates_count": 120
+}

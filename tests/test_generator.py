@@ -6,6 +6,9 @@ Stages 2-5 (`company`, `errors`, `transforms`, `verifier`, `build_datasets`).
 
 from __future__ import annotations
 
+from pathlib import Path
+
+from finaudit_env.build_datasets import build_datasets, load_episode_from_dir
 from finaudit_env.generator.company import generate_clean_company
 from finaudit_env.generator.errors import inject_errors
 from finaudit_env.generator.fx_utils import (
@@ -253,6 +256,44 @@ def test_verifier_and_isomorphic_transforms() -> None:
         assert finding.affected_ids == trans_iss.affected_ids
         assert finding.claimed_amount_minor == trans_iss.expected_amount_minor
         assert finding.evidence_ids == trans_iss.valid_evidence_sets[0]
+
+
+def test_build_datasets_and_verify_saved_splits(tmp_path: Path) -> None:
+    repo_root = Path(__file__).resolve().parent.parent
+    cfg_dir = repo_root / "configs"
+    out_dir = tmp_path / "data"
+
+    summary = build_datasets(config_dir=cfg_dir, output_dir=out_dir)
+    assert summary["train_count"] == 10
+    assert summary["dev_count"] == 10
+    assert summary["verified_count"] == 20
+
+    # Verify round-trip disk loading and invariants on all generated train & dev episodes
+    clean_count = 0
+    for split in ("train", "dev"):
+        for ep_info in summary["episodes"][split]:
+            ep_dir = Path(ep_info["path"])
+            for required_file in (
+                "manifest.json",
+                "policy.json",
+                "ledger.csv",
+                "invoices.jsonl",
+                "payments.jsonl",
+                "fx.csv",
+                "truth.json",
+                "provenance.json",
+            ):
+                assert (ep_dir / required_file).exists(), f"Missing {required_file} in {ep_dir}"
+
+            loaded = load_episode_from_dir(ep_dir)
+            ver = verify_episode(loaded)
+            assert ver["valid"] is True, f"Loaded episode {ep_dir.name} failed verification: {ver['errors']}"
+            if len(loaded["truth"].issues) == 0:
+                clean_count += 1
+
+    # 2 clean in train + 2 clean in dev = 4 clean episodes total
+    assert clean_count == 4
+
 
 
 

@@ -1,0 +1,147 @@
+{
+  "schema_version": "1.0.0",
+  "episode_id": "ep_dev_004",
+  "issues": [
+    {
+      "issue_id": "ISS-001",
+      "type": "duplicate_invoice",
+      "affected_ids": [
+        "INV-2026-004",
+        "INV-2026-038",
+        "L-0225"
+      ],
+      "expected_amount_minor": 77437471,
+      "currency": "KZT",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-004",
+          "DOC-INV-038",
+          "L-0225"
+        ],
+        [
+          "INV-2026-004",
+          "INV-2026-038",
+          "L-0225"
+        ],
+        [
+          "DOC-INV-004",
+          "DOC-INV-038",
+          "L-0013",
+          "L-0225"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Duplicate invoice INV-2026-038 (DOC-INV-038) duplicating INV-2026-004 (DOC-INV-004)."
+    },
+    {
+      "issue_id": "ISS-002",
+      "type": "unallocated_or_partial_payment",
+      "affected_ids": [
+        "INV-2026-002",
+        "L-0008",
+        "PAY-2026-002"
+      ],
+      "expected_amount_minor": 386960,
+      "currency": "KZT",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-002",
+          "DOC-PAY-002",
+          "L-0008"
+        ],
+        [
+          "INV-2026-002",
+          "L-0008",
+          "PAY-2026-002"
+        ],
+        [
+          "DOC-PAY-002",
+          "L-0007",
+          "L-0008"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Payment PAY-2026-002 for INV-2026-002 partially allocated in ledger row L-0008: expected 967400, recorded 580440."
+    },
+    {
+      "issue_id": "ISS-003",
+      "type": "fx_conversion_error",
+      "affected_ids": [
+        "FX-2026-04-19-EUR-KZT",
+        "INV-2026-025",
+        "L-0097"
+      ],
+      "expected_amount_minor": 152651622,
+      "currency": "KZT",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-025",
+          "FX-2026-04-19-EUR-KZT",
+          "L-0097"
+        ],
+        [
+          "FX-2026-04-19-EUR-KZT",
+          "INV-2026-025",
+          "L-0097"
+        ],
+        [
+          "DOC-INV-025",
+          "L-0097"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Invoice INV-2026-025 in EUR converted at wrong FX rate in L-0097: expected 1017677485 (using FX-2026-04-19-EUR-KZT rate 535.3943), recorded 1170329107."
+    },
+    {
+      "issue_id": "ISS-004",
+      "type": "fx_conversion_error",
+      "affected_ids": [
+        "FX-2026-04-20-EUR-KZT",
+        "INV-2026-022",
+        "L-0085"
+      ],
+      "expected_amount_minor": 177384619,
+      "currency": "KZT",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-022",
+          "FX-2026-04-20-EUR-KZT",
+          "L-0085"
+        ],
+        [
+          "FX-2026-04-20-EUR-KZT",
+          "INV-2026-022",
+          "L-0085"
+        ],
+        [
+          "DOC-INV-022",
+          "L-0085"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Invoice INV-2026-022 in EUR converted at wrong FX rate in L-0085: expected 1182564129 (using FX-2026-04-20-EUR-KZT rate 537.6269), recorded 1359948748."
+    },
+    {
+      "issue_id": "ISS-005",
+      "type": "period_cutoff_error",
+      "affected_ids": [
+        "INV-2026-013",
+        "L-0049"
+      ],
+      "expected_amount_minor": 2007000,
+      "currency": "KZT",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-013",
+          "L-0049"
+        ],
+        [
+          "INV-2026-013",
+          "L-0049"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Invoice INV-2026-013 issued at 2026-05-03T11:20:00+05:00 outside reporting period [2026-04-01, 2026-04-30] but recorded in ledger row L-0049."
+    }
+  ]
+}

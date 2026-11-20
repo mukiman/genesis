@@ -1,0 +1,8 @@
+{
+  "fx_rate_date_rule": "transaction_date",
+  "period_start": "2026-08-01",
+  "period_end": "2026-08-31",
+  "timezone": "Asia/Almaty",
+  "rounding_mode": "HALF_EVEN",
+  "amount_tolerance_minor": 1
+}

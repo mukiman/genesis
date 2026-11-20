@@ -1,0 +1,8 @@
+{
+  "fx_rate_date_rule": "invoice_issue_date",
+  "period_start": "2026-09-01",
+  "period_end": "2026-09-30",
+  "timezone": "Europe/Paris",
+  "rounding_mode": "HALF_UP",
+  "amount_tolerance_minor": 1
+}

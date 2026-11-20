@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0.0",
+  "episode_id": "ep_dev_009",
+  "company_name": "Veritas Payment Systems",
+  "base_currency": "EUR",
+  "period_start": "2026-09-01",
+  "period_end": "2026-09-30",
+  "timezone": "Europe/Amsterdam",
+  "rounding_mode": "HALF_EVEN",
+  "currency_exponents": {
+    "USD": 2,
+    "EUR": 2,
+    "GBP": 2,
+    "KZT": 2,
+    "JPY": 0,
+    "CHF": 2
+  },
+  "ledger_rows_count": 226,
+  "invoices_count": 38,
+  "payments_count": 40,
+  "fx_rates_count": 120
+}

@@ -1,0 +1,194 @@
+[
+  {
+    "episode_id": "ep_dev_001",
+    "seed": 2201,
+    "company_name": "Astana FinCore LLP",
+    "base_currency": "KZT",
+    "foreign_currencies": ["USD", "EUR"],
+    "period_start": "2026-01-01",
+    "period_end": "2026-01-31",
+    "tz_offset": "+05:00",
+    "timezone": "Asia/Almaty",
+    "fx_rate_date_rule": "transaction_date",
+    "rounding_mode": "HALF_EVEN",
+    "error_config": {
+      "clean_only": true
+    }
+  },
+  {
+    "episode_id": "ep_dev_002",
+    "seed": 2202,
+    "company_name": "Meridian Global Clearing",
+    "base_currency": "EUR",
+    "foreign_currencies": ["USD", "GBP"],
+    "period_start": "2026-02-01",
+    "period_end": "2026-02-28",
+    "tz_offset": "+01:00",
+    "timezone": "Europe/Frankfurt",
+    "fx_rate_date_rule": "previous_business_day",
+    "rounding_mode": "HALF_UP",
+    "error_config": {
+      "clean_only": true
+    }
+  },
+  {
+    "episode_id": "ep_dev_003",
+    "seed": 2203,
+    "company_name": "Apex Settlement Services",
+    "base_currency": "USD",
+    "foreign_currencies": ["EUR", "CHF"],
+    "period_start": "2026-03-01",
+    "period_end": "2026-03-31",
+    "tz_offset": "+00:00",
+    "timezone": "UTC",
+    "fx_rate_date_rule": "transaction_date",
+    "rounding_mode": "HALF_EVEN",
+    "error_config": {
+      "duplicate_invoice": 1,
+      "unallocated_or_partial_payment": 1,
+      "fx_conversion_error": 1,
+      "period_cutoff_error": 0,
+      "interacting_scenarios": []
+    }
+  },
+  {
+    "episode_id": "ep_dev_004",
+    "seed": 2204,
+    "company_name": "SilkRoad Treasury Corp",
+    "base_currency": "KZT",
+    "foreign_currencies": ["USD", "EUR"],
+    "period_start": "2026-04-01",
+    "period_end": "2026-04-30",
+    "tz_offset": "+05:00",
+    "timezone": "Asia/Almaty",
+    "fx_rate_date_rule": "invoice_issue_date",
+    "rounding_mode": "HALF_EVEN",
+    "error_config": {
+      "duplicate_invoice": 1,
+      "unallocated_or_partial_payment": 1,
+      "fx_conversion_error": 2,
+      "period_cutoff_error": 1,
+      "interacting_scenarios": []
+    }
+  },
+  {
+    "episode_id": "ep_dev_005",
+    "seed": 2205,
+    "company_name": "Albion Merchant Partners",
+    "base_currency": "GBP",
+    "foreign_currencies": ["USD", "EUR"],
+    "period_start": "2026-05-01",
+    "period_end": "2026-05-31",
+    "tz_offset": "+00:00",
+    "timezone": "Europe/London",
+    "fx_rate_date_rule": "previous_business_day",
+    "rounding_mode": "HALF_UP",
+    "error_config": {
+      "duplicate_invoice": 2,
+      "unallocated_or_partial_payment": 1,
+      "fx_conversion_error": 1,
+      "period_cutoff_error": 1,
+      "interacting_scenarios": []
+    }
+  },
+  {
+    "episode_id": "ep_dev_006",
+    "seed": 2206,
+    "company_name": "Pacific Rim Freight Systems",
+    "base_currency": "USD",
+    "foreign_currencies": ["JPY", "EUR"],
+    "period_start": "2026-06-01",
+    "period_end": "2026-06-30",
+    "tz_offset": "+00:00",
+    "timezone": "UTC",
+    "fx_rate_date_rule": "transaction_date",
+    "rounding_mode": "HALF_EVEN",
+    "error_config": {
+      "duplicate_invoice": 1,
+      "unallocated_or_partial_payment": 2,
+      "fx_conversion_error": 1,
+      "period_cutoff_error": 1,
+      "interacting_scenarios": []
+    }
+  },
+  {
+    "episode_id": "ep_dev_007",
+    "seed": 2207,
+    "company_name": "Alpine Precision Capital",
+    "base_currency": "CHF",
+    "foreign_currencies": ["EUR", "USD"],
+    "period_start": "2026-07-01",
+    "period_end": "2026-07-31",
+    "tz_offset": "+01:00",
+    "timezone": "Europe/Zurich",
+    "fx_rate_date_rule": "invoice_issue_date",
+    "rounding_mode": "UP",
+    "error_config": {
+      "duplicate_invoice": 1,
+      "unallocated_or_partial_payment": 1,
+      "fx_conversion_error": 1,
+      "period_cutoff_error": 2,
+      "interacting_scenarios": []
+    }
+  },
+  {
+    "episode_id": "ep_dev_008",
+    "seed": 2208,
+    "company_name": "Tengri Digital Infrastructure",
+    "base_currency": "KZT",
+    "foreign_currencies": ["USD", "EUR"],
+    "period_start": "2026-08-01",
+    "period_end": "2026-08-31",
+    "tz_offset": "+05:00",
+    "timezone": "Asia/Almaty",
+    "fx_rate_date_rule": "transaction_date",
+    "rounding_mode": "HALF_EVEN",
+    "error_config": {
+      "duplicate_invoice": 1,
+      "unallocated_or_partial_payment": 1,
+      "fx_conversion_error": 0,
+      "period_cutoff_error": 0,
+      "interacting_scenarios": ["partial_fx_cutoff"]
+    }
+  },
+  {
+    "episode_id": "ep_dev_009",
+    "seed": 2209,
+    "company_name": "Veritas Payment Systems",
+    "base_currency": "EUR",
+    "foreign_currencies": ["USD", "CHF"],
+    "period_start": "2026-09-01",
+    "period_end": "2026-09-30",
+    "tz_offset": "+01:00",
+    "timezone": "Europe/Amsterdam",
+    "fx_rate_date_rule": "previous_business_day",
+    "rounding_mode": "HALF_EVEN",
+    "error_config": {
+      "duplicate_invoice": 0,
+      "unallocated_or_partial_payment": 1,
+      "fx_conversion_error": 1,
+      "period_cutoff_error": 1,
+      "interacting_scenarios": ["duplicate_fx_cutoff"]
+    }
+  },
+  {
+    "episode_id": "ep_dev_010",
+    "seed": 2210,
+    "company_name": "Zenith Autonomous Systems",
+    "base_currency": "USD",
+    "foreign_currencies": ["EUR", "GBP", "KZT"],
+    "period_start": "2026-10-01",
+    "period_end": "2026-10-31",
+    "tz_offset": "+00:00",
+    "timezone": "UTC",
+    "fx_rate_date_rule": "invoice_issue_date",
+    "rounding_mode": "HALF_EVEN",
+    "error_config": {
+      "duplicate_invoice": 1,
+      "unallocated_or_partial_payment": 1,
+      "fx_conversion_error": 1,
+      "period_cutoff_error": 1,
+      "interacting_scenarios": ["partial_fx_cutoff", "duplicate_fx_cutoff"]
+    }
+  }
+]
