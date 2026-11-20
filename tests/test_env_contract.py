@@ -29,6 +29,7 @@ import pytest
 from finaudit_env.env.calculator import CalculatorError, evaluate_expression, safe_calculate
 from finaudit_env.env.core import FinAuditEnv
 from finaudit_env.env.datastore import EpisodeDataStore
+from finaudit_env.env.isolated_client import IsolatedFinAuditEnv
 from finaudit_env.env.leak_checker import (
     assert_no_leaks,
     check_observation_for_leaks,
@@ -619,3 +620,92 @@ def test_19_leak_checker_catches_planted_truth_and_path_leaks() -> None:
 
     with pytest.raises(AssertionError, match="Ground-truth leak detected"):
         assert_no_leaks({"debug": "expected_amount_minor=10000"})
+
+
+# ---------------------------------------------------------------------------
+# Subprocess JSON-RPC Evaluator Isolation Tests
+# ---------------------------------------------------------------------------
+
+
+def test_20_isolated_client_full_lifecycle_and_memory_isolation(tmp_path: Path) -> None:
+    _write_sample_episode(tmp_path, num_ledger_rows=10)
+
+    with IsolatedFinAuditEnv(mode="train", episode_dir=tmp_path) as client:
+        obs, info = client.reset(seed=555)
+        assert obs["manifest"]["episode_id"] == "ep_test_001"
+        assert info["steps_remaining"] == 100
+
+        # Ensure client process memory holds no truth attributes or secret issue IDs
+        assert not hasattr(client, "_evaluator_truth")
+        assert not hasattr(client, "_datastore")
+        client_state_str = str(vars(client))
+        assert "ISS-SECRET-999" not in client_state_str
+        assert "HIDDEN_NOTE_DO_NOT_LEAK" not in client_state_str
+
+        # Perform all 5 actions over subprocess JSON-RPC
+        obs1, r1, term1, trunc1, _ = client.step({"action": "list_records", "table": "ledger", "limit": 3})
+        assert r1 == 0.0 and not term1 and not trunc1
+        assert len(obs1["result"]["items"]) == 3
+
+        obs2, r2, _, _, _ = client.step({"action": "get_record", "table": "ledger", "id": "L-0001"})
+        assert r2 == 0.0 and obs2["result"]["row_id"] == "L-0001"
+
+        obs3, r3, _, _, _ = client.step({"action": "get_document", "doc_id": "DOC-INV-001"})
+        assert r3 == 0.0 and obs3["result"]["invoice_id"] == "INV-2026-001"
+
+        obs4, r4, _, _, _ = client.step({"action": "calculator", "expression": "5000 + 5000"})
+        assert r4 == 0.0 and obs4["result"]["result"] == "10000"
+
+        obs5, r5, term5, trunc5, info5 = client.step(
+            {
+                "action": "submit",
+                "submission": {
+                    "episode_id": "ep_test_001",
+                    "findings": [
+                        {
+                            "type": "duplicate_invoice",
+                            "affected_ids": ["L-0001", "INV-2026-001"],
+                            "claimed_amount_minor": 10000,
+                            "currency": "USD",
+                            "evidence_ids": ["DOC-INV-001", "L-0001"],
+                            "explanation": "Isolated subprocess submit.",
+                        }
+                    ],
+                },
+            }
+        )
+        assert term5 is True and not trunc5
+        assert r5 == pytest.approx(1.0 - 0.002 * 4)
+        assert info5["evaluation"]["f1"] == 1.0
+
+        traj = client.get_trajectory()
+        assert len(traj) == 5
+
+
+def test_21_isolated_client_eval_mode_and_bounded_errors_over_ipc(tmp_path: Path) -> None:
+    _write_sample_episode(tmp_path, num_ledger_rows=10)
+
+    with IsolatedFinAuditEnv(mode="eval", episode_dir=tmp_path) as client:
+        client.reset(seed=123)
+
+        # Invalid action over IPC does not crash subprocess
+        obs_err, r_err, term_err, trunc_err, _ = client.step({"action": "non_existent_tool"})
+        assert "error" in obs_err
+        assert r_err == 0.0 and not term_err and not trunc_err
+
+        # Malformed submit over IPC terminates episode cleanly with internal reward -1.0
+        obs_sub, r_sub, term_sub, _, info_sub = client.step(
+            {"action": "submit", "submission": {"invalid": "payload"}}
+        )
+        assert term_sub is True
+        assert "error" in obs_sub
+        # In eval mode, returned reward to agent is 0.0 and evaluation is omitted from info
+        assert r_sub == 0.0
+        assert "evaluation" not in info_sub
+
+        # Evaluator side still recorded -1.0
+        eval_res = client.get_last_evaluation()
+        assert eval_res is not None
+        assert eval_res["reward"] == -1.0
+        assert eval_res["invalid_structure"] is True
+
