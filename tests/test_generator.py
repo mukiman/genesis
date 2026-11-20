@@ -7,13 +7,14 @@ Stages 2-5 (`company`, `errors`, `transforms`, `verifier`, `build_datasets`).
 from __future__ import annotations
 
 from finaudit_env.generator.company import generate_clean_company
+from finaudit_env.generator.errors import inject_errors
 from finaudit_env.generator.fx_utils import (
     convert_amount_minor,
     generate_fx_rates,
     lookup_fx_rate,
     resolve_effective_fx_date,
 )
-from finaudit_env.schemas import PolicyConfig
+from finaudit_env.schemas import IssueType, PolicyConfig
 
 
 def test_fx_generation_determinism_and_padding() -> None:
@@ -137,4 +138,57 @@ def test_clean_company_trial_balance_and_distractors() -> None:
     assert len(ep1["truth"].issues) == 0
     distractor_events = [e for e in ep1["provenance"].events if e.stage == "distractor_injection"]
     assert len(distractor_events) >= 5
+
+
+def test_error_injection_four_types_and_interacting_scenarios() -> None:
+    clean = generate_clean_company(seed=2026, config={"episode_id": "ep_err_2026", "base_currency": "USD"})
+    mutated = inject_errors(
+        clean_episode=clean,
+        seed=2026,
+        error_config={
+            "duplicate_invoice": 1,
+            "unallocated_or_partial_payment": 1,
+            "fx_conversion_error": 1,
+            "period_cutoff_error": 1,
+            "interacting_scenarios": ["partial_fx_cutoff", "duplicate_fx_cutoff"],
+        },
+    )
+
+    # Original clean episode must remain untouched
+    assert len(clean["truth"].issues) == 0
+
+    issues = mutated["truth"].issues
+    # 4 standalone + 2 from partial_fx_cutoff + 2 from duplicate_fx_cutoff = 8 issues
+    assert len(issues) == 8
+
+    present_types = {iss.type for iss in issues}
+    assert present_types == {
+        IssueType.DUPLICATE_INVOICE,
+        IssueType.UNALLOCATED_OR_PARTIAL_PAYMENT,
+        IssueType.FX_CONVERSION_ERROR,
+        IssueType.PERIOD_CUTOFF_ERROR,
+    }
+
+    # Build set of all open IDs in mutated episode
+    open_ids: set[str] = set()
+    open_ids.update(r.row_id for r in mutated["ledger"])
+    open_ids.update(i.doc_id for i in mutated["invoices"])
+    open_ids.update(i.invoice_id for i in mutated["invoices"])
+    open_ids.update(p.doc_id for p in mutated["payments"])
+    open_ids.update(p.payment_id for p in mutated["payments"])
+    open_ids.update(f.fx_id for f in mutated["fx"] if f.fx_id)
+
+    for iss in issues:
+        assert iss.expected_amount_minor > 0
+        assert iss.currency == "USD"
+        for aid in iss.affected_ids:
+            assert aid in open_ids, f"Affected ID {aid} missing from open records"
+        for ev_set in iss.valid_evidence_sets:
+            assert len(ev_set) >= 2
+            for eid in ev_set:
+                assert eid in open_ids, f"Evidence ID {eid} missing from open records"
+
+    error_events = [e for e in mutated["provenance"].events if e.stage == "error_injection"]
+    assert len(error_events) == 8
+
 
