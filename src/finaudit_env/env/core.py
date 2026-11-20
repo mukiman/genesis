@@ -112,6 +112,13 @@ class FinAuditEnv:
         """Attempt to invoke the synthetic company & error generator when no pre-built directory is supplied."""
         effective_seed = 0 if seed is None else int(seed)
         try:
+            from finaudit_env.build_datasets import generate_episode
+
+            return generate_episode(seed=effective_seed, config=config)
+        except Exception:
+            pass
+
+        try:
             from finaudit_env.generator import company as gen_company
             from finaudit_env.generator import errors as gen_errors
         except Exception as exc:
@@ -127,7 +134,7 @@ class FinAuditEnv:
             clean_bundle = gen_company.generate_clean_company(seed=effective_seed, config=config)
             if hasattr(gen_errors, "inject_errors"):
                 try:
-                    return gen_errors.inject_errors(clean_bundle, seed=effective_seed, config=config)  # type: ignore[no-any-return]
+                    return gen_errors.inject_errors(clean_bundle, seed=effective_seed, error_config=config)  # type: ignore[no-any-return]
                 except NotImplementedError:
                     pass
             if isinstance(clean_bundle, dict):

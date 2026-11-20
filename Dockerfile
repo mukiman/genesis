@@ -1,17 +1,26 @@
-# TODO: Finalize reproducible offline container image (Python 3.11, 2 CPU cores, 4 GB RAM, no network)
+# Reproducible offline container image (Python 3.11, 2 CPU cores, 4 GB RAM, no network/GPU required)
 FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 WORKDIR /app
 
-# TODO: Copy dependency metadata and install offline wheels / pinned dependencies
-COPY pyproject.toml README.md LICENSE ./
+# Copy project metadata, source code, configs, pre-built datasets, and tests
+COPY pyproject.toml README.md DESIGN.md PROJECT_MAP.md LICENSE ./
 COPY src/ ./src/
 COPY tests/ ./tests/
 COPY configs/ ./configs/
 COPY data/ ./data/
+COPY artifacts/ ./artifacts/
 
-# TODO: Run pip install --no-cache-dir -e . and configure non-root runner user
-RUN pip install --no-cache-dir -e .
+# Install package and pinned dependencies
+RUN pip install --no-cache-dir -e . && \
+    useradd --create-home --shell /bin/bash auditor && \
+    chown -R auditor:auditor /app
 
-# TODO: Set default verification entrypoint command
+USER auditor
+
+# Single-command offline verification entrypoint
 CMD ["python", "-m", "finaudit_env.verify_all"]
