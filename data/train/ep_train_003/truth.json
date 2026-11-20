@@ -1,0 +1,98 @@
+{
+  "schema_version": "1.0.0",
+  "episode_id": "ep_train_003",
+  "issues": [
+    {
+      "issue_id": "ISS-001",
+      "type": "duplicate_invoice",
+      "affected_ids": [
+        "INV-2026-025",
+        "INV-2026-038",
+        "L-0225"
+      ],
+      "expected_amount_minor": 2324572,
+      "currency": "USD",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-025",
+          "DOC-INV-038",
+          "L-0225"
+        ],
+        [
+          "INV-2026-025",
+          "INV-2026-038",
+          "L-0225"
+        ],
+        [
+          "DOC-INV-025",
+          "DOC-INV-038",
+          "L-0097",
+          "L-0225"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Duplicate invoice INV-2026-038 (DOC-INV-038) duplicating INV-2026-025 (DOC-INV-025)."
+    },
+    {
+      "issue_id": "ISS-002",
+      "type": "duplicate_invoice",
+      "affected_ids": [
+        "INV-2026-003",
+        "INV-2026-039",
+        "L-0227"
+      ],
+      "expected_amount_minor": 2772900,
+      "currency": "USD",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-003",
+          "DOC-INV-039",
+          "L-0227"
+        ],
+        [
+          "INV-2026-003",
+          "INV-2026-039",
+          "L-0227"
+        ],
+        [
+          "DOC-INV-003",
+          "DOC-INV-039",
+          "L-0009",
+          "L-0227"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Duplicate invoice INV-2026-039 (DOC-INV-039) duplicating INV-2026-003 (DOC-INV-003)."
+    },
+    {
+      "issue_id": "ISS-003",
+      "type": "unallocated_or_partial_payment",
+      "affected_ids": [
+        "INV-2026-018",
+        "L-0072",
+        "PAY-2026-018"
+      ],
+      "expected_amount_minor": 4315,
+      "currency": "USD",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-018",
+          "DOC-PAY-018",
+          "L-0072"
+        ],
+        [
+          "INV-2026-018",
+          "L-0072",
+          "PAY-2026-018"
+        ],
+        [
+          "DOC-PAY-018",
+          "L-0071",
+          "L-0072"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Payment PAY-2026-018 for INV-2026-018 partially allocated in ledger row L-0072: expected 10786, recorded 6471."
+    }
+  ]
+}

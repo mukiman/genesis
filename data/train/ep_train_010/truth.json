@@ -1,0 +1,230 @@
+{
+  "schema_version": "1.0.0",
+  "episode_id": "ep_train_010",
+  "issues": [
+    {
+      "issue_id": "ISS-001",
+      "type": "fx_conversion_error",
+      "affected_ids": [
+        "FX-2026-10-30-JPY-USD",
+        "INV-2026-006",
+        "L-0021"
+      ],
+      "expected_amount_minor": 586,
+      "currency": "USD",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-006",
+          "FX-2026-10-30-JPY-USD",
+          "L-0021"
+        ],
+        [
+          "FX-2026-10-30-JPY-USD",
+          "INV-2026-006",
+          "L-0021"
+        ],
+        [
+          "DOC-INV-006",
+          "L-0021"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Invoice INV-2026-006 in JPY converted at wrong FX rate in L-0021: expected 3907 (using FX-2026-10-30-JPY-USD rate 0.006476), recorded 4493."
+    },
+    {
+      "issue_id": "ISS-002",
+      "type": "unallocated_or_partial_payment",
+      "affected_ids": [
+        "INV-2026-006",
+        "L-0024",
+        "PAY-2026-006"
+      ],
+      "expected_amount_minor": 1584,
+      "currency": "USD",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-006",
+          "DOC-PAY-006",
+          "L-0024"
+        ],
+        [
+          "INV-2026-006",
+          "L-0024",
+          "PAY-2026-006"
+        ],
+        [
+          "DOC-PAY-006",
+          "L-0023",
+          "L-0024"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Payment PAY-2026-006 for INV-2026-006 partially allocated in ledger row L-0024: expected 3958, recorded 2374."
+    },
+    {
+      "issue_id": "ISS-003",
+      "type": "duplicate_invoice",
+      "affected_ids": [
+        "INV-2026-012",
+        "INV-2026-038",
+        "L-0225"
+      ],
+      "expected_amount_minor": 1008714,
+      "currency": "USD",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-012",
+          "DOC-INV-038",
+          "L-0225"
+        ],
+        [
+          "INV-2026-012",
+          "INV-2026-038",
+          "L-0225"
+        ],
+        [
+          "DOC-INV-012",
+          "DOC-INV-038",
+          "L-0045",
+          "L-0225"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Duplicate invoice INV-2026-038 (DOC-INV-038) duplicating INV-2026-012 (DOC-INV-012)."
+    },
+    {
+      "issue_id": "ISS-004",
+      "type": "period_cutoff_error",
+      "affected_ids": [
+        "INV-2026-038",
+        "L-0225"
+      ],
+      "expected_amount_minor": 1008714,
+      "currency": "USD",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-038",
+          "L-0225"
+        ],
+        [
+          "INV-2026-038",
+          "L-0225"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Invoice INV-2026-038 issued at 2026-11-03T11:20:00+00:00 outside reporting period [2026-10-01, 2026-10-31] but recorded in ledger row L-0225."
+    },
+    {
+      "issue_id": "ISS-005",
+      "type": "duplicate_invoice",
+      "affected_ids": [
+        "INV-2026-018",
+        "INV-2026-039",
+        "L-0227"
+      ],
+      "expected_amount_minor": 1112100,
+      "currency": "USD",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-018",
+          "DOC-INV-039",
+          "L-0227"
+        ],
+        [
+          "INV-2026-018",
+          "INV-2026-039",
+          "L-0227"
+        ],
+        [
+          "DOC-INV-018",
+          "DOC-INV-039",
+          "L-0069",
+          "L-0227"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Duplicate invoice INV-2026-039 (DOC-INV-039) duplicating INV-2026-018 (DOC-INV-018)."
+    },
+    {
+      "issue_id": "ISS-006",
+      "type": "unallocated_or_partial_payment",
+      "affected_ids": [
+        "INV-2026-023",
+        "L-0092",
+        "PAY-2026-023"
+      ],
+      "expected_amount_minor": 672000,
+      "currency": "USD",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-023",
+          "DOC-PAY-023",
+          "L-0092"
+        ],
+        [
+          "INV-2026-023",
+          "L-0092",
+          "PAY-2026-023"
+        ],
+        [
+          "DOC-PAY-023",
+          "L-0091",
+          "L-0092"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Payment PAY-2026-023 for INV-2026-023 partially allocated in ledger row L-0092: expected 1680000, recorded 1008000."
+    },
+    {
+      "issue_id": "ISS-007",
+      "type": "fx_conversion_error",
+      "affected_ids": [
+        "FX-2026-10-16-GBP-USD",
+        "INV-2026-025",
+        "L-0097"
+      ],
+      "expected_amount_minor": 246937,
+      "currency": "USD",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-025",
+          "FX-2026-10-16-GBP-USD",
+          "L-0097"
+        ],
+        [
+          "FX-2026-10-16-GBP-USD",
+          "INV-2026-025",
+          "L-0097"
+        ],
+        [
+          "DOC-INV-025",
+          "L-0097"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Invoice INV-2026-025 in GBP converted at wrong FX rate in L-0097: expected 1646251 (using FX-2026-10-16-GBP-USD rate 1.2540), recorded 1893188."
+    },
+    {
+      "issue_id": "ISS-008",
+      "type": "period_cutoff_error",
+      "affected_ids": [
+        "INV-2026-007",
+        "L-0025"
+      ],
+      "expected_amount_minor": 1742606,
+      "currency": "USD",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-007",
+          "L-0025"
+        ],
+        [
+          "INV-2026-007",
+          "L-0025"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Invoice INV-2026-007 issued at 2026-11-03T11:20:00+00:00 outside reporting period [2026-10-01, 2026-10-31] but recorded in ledger row L-0025."
+    }
+  ]
+}

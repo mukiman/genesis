@@ -1,0 +1,8 @@
+{
+  "fx_rate_date_rule": "previous_business_day",
+  "period_start": "2026-02-01",
+  "period_end": "2026-02-28",
+  "timezone": "Europe/Frankfurt",
+  "rounding_mode": "HALF_UP",
+  "amount_tolerance_minor": 1
+}

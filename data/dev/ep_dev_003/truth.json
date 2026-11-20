@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.0.0",
+  "episode_id": "ep_dev_003",
+  "issues": [
+    {
+      "issue_id": "ISS-001",
+      "type": "duplicate_invoice",
+      "affected_ids": [
+        "INV-2026-028",
+        "INV-2026-038",
+        "L-0225"
+      ],
+      "expected_amount_minor": 1635000,
+      "currency": "USD",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-028",
+          "DOC-INV-038",
+          "L-0225"
+        ],
+        [
+          "INV-2026-028",
+          "INV-2026-038",
+          "L-0225"
+        ],
+        [
+          "DOC-INV-028",
+          "DOC-INV-038",
+          "L-0109",
+          "L-0225"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Duplicate invoice INV-2026-038 (DOC-INV-038) duplicating INV-2026-028 (DOC-INV-028)."
+    },
+    {
+      "issue_id": "ISS-002",
+      "type": "unallocated_or_partial_payment",
+      "affected_ids": [
+        "INV-2026-017",
+        "L-0068",
+        "PAY-2026-017"
+      ],
+      "expected_amount_minor": 961280,
+      "currency": "USD",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-017",
+          "DOC-PAY-017",
+          "L-0068"
+        ],
+        [
+          "INV-2026-017",
+          "L-0068",
+          "PAY-2026-017"
+        ],
+        [
+          "DOC-PAY-017",
+          "L-0067",
+          "L-0068"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Payment PAY-2026-017 for INV-2026-017 partially allocated in ledger row L-0068: expected 2403200, recorded 1441920."
+    },
+    {
+      "issue_id": "ISS-003",
+      "type": "fx_conversion_error",
+      "affected_ids": [
+        "FX-2026-03-10-EUR-USD",
+        "INV-2026-008",
+        "L-0029"
+      ],
+      "expected_amount_minor": 148900,
+      "currency": "USD",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-008",
+          "FX-2026-03-10-EUR-USD",
+          "L-0029"
+        ],
+        [
+          "FX-2026-03-10-EUR-USD",
+          "INV-2026-008",
+          "L-0029"
+        ],
+        [
+          "DOC-INV-008",
+          "L-0029"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Invoice INV-2026-008 in EUR converted at wrong FX rate in L-0029: expected 992673 (using FX-2026-03-10-EUR-USD rate 1.0651), recorded 1141573."
+    }
+  ]
+}

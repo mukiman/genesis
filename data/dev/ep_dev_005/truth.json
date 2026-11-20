@@ -1,0 +1,149 @@
+{
+  "schema_version": "1.0.0",
+  "episode_id": "ep_dev_005",
+  "issues": [
+    {
+      "issue_id": "ISS-001",
+      "type": "duplicate_invoice",
+      "affected_ids": [
+        "INV-2026-026",
+        "INV-2026-038",
+        "L-0225"
+      ],
+      "expected_amount_minor": 866200,
+      "currency": "GBP",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-026",
+          "DOC-INV-038",
+          "L-0225"
+        ],
+        [
+          "INV-2026-026",
+          "INV-2026-038",
+          "L-0225"
+        ],
+        [
+          "DOC-INV-026",
+          "DOC-INV-038",
+          "L-0101",
+          "L-0225"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Duplicate invoice INV-2026-038 (DOC-INV-038) duplicating INV-2026-026 (DOC-INV-026)."
+    },
+    {
+      "issue_id": "ISS-002",
+      "type": "duplicate_invoice",
+      "affected_ids": [
+        "INV-2026-013",
+        "INV-2026-039",
+        "L-0227"
+      ],
+      "expected_amount_minor": 1942900,
+      "currency": "GBP",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-013",
+          "DOC-INV-039",
+          "L-0227"
+        ],
+        [
+          "INV-2026-013",
+          "INV-2026-039",
+          "L-0227"
+        ],
+        [
+          "DOC-INV-013",
+          "DOC-INV-039",
+          "L-0049",
+          "L-0227"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Duplicate invoice INV-2026-039 (DOC-INV-039) duplicating INV-2026-013 (DOC-INV-013)."
+    },
+    {
+      "issue_id": "ISS-003",
+      "type": "unallocated_or_partial_payment",
+      "affected_ids": [
+        "INV-2026-009",
+        "L-0036",
+        "PAY-2026-009"
+      ],
+      "expected_amount_minor": 778680,
+      "currency": "GBP",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-009",
+          "DOC-PAY-009",
+          "L-0036"
+        ],
+        [
+          "INV-2026-009",
+          "L-0036",
+          "PAY-2026-009"
+        ],
+        [
+          "DOC-PAY-009",
+          "L-0035",
+          "L-0036"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Payment PAY-2026-009 for INV-2026-009 partially allocated in ledger row L-0036: expected 1946700, recorded 1168020."
+    },
+    {
+      "issue_id": "ISS-004",
+      "type": "fx_conversion_error",
+      "affected_ids": [
+        "FX-2026-05-15-EUR-GBP",
+        "INV-2026-018",
+        "L-0069"
+      ],
+      "expected_amount_minor": 371090,
+      "currency": "GBP",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-018",
+          "FX-2026-05-15-EUR-GBP",
+          "L-0069"
+        ],
+        [
+          "FX-2026-05-15-EUR-GBP",
+          "INV-2026-018",
+          "L-0069"
+        ],
+        [
+          "DOC-INV-018",
+          "L-0069"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Invoice INV-2026-018 in EUR converted at wrong FX rate in L-0069: expected 2473936 (using FX-2026-05-15-EUR-GBP rate 0.8361), recorded 2845026."
+    },
+    {
+      "issue_id": "ISS-005",
+      "type": "period_cutoff_error",
+      "affected_ids": [
+        "INV-2026-014",
+        "L-0053"
+      ],
+      "expected_amount_minor": 223400,
+      "currency": "GBP",
+      "valid_evidence_sets": [
+        [
+          "DOC-INV-014",
+          "L-0053"
+        ],
+        [
+          "INV-2026-014",
+          "L-0053"
+        ]
+      ],
+      "tolerance_minor": 1,
+      "notes": "Invoice INV-2026-014 issued at 2026-06-03T11:20:00+00:00 outside reporting period [2026-05-01, 2026-05-31] but recorded in ledger row L-0053."
+    }
+  ]
+}

@@ -1,0 +1,316 @@
+{
+  "schema_version": "1.0.0",
+  "episode_id": "ep_dev_007",
+  "seed": 2207,
+  "generator_config": {
+    "episode_id": "ep_dev_007",
+    "seed": 2207,
+    "company_name": "Alpine Precision Capital",
+    "base_currency": "CHF",
+    "foreign_currencies": [
+      "EUR",
+      "USD"
+    ],
+    "period_start": "2026-07-01",
+    "period_end": "2026-07-31",
+    "tz_offset": "+01:00",
+    "timezone": "Europe/Zurich",
+    "fx_rate_date_rule": "invoice_issue_date",
+    "rounding_mode": "UP",
+    "error_config": {
+      "duplicate_invoice": 1,
+      "unallocated_or_partial_payment": 1,
+      "fx_conversion_error": 1,
+      "period_cutoff_error": 2,
+      "interacting_scenarios": []
+    }
+  },
+  "pre_mutation_trial_balance_ok": true,
+  "events": [
+    {
+      "event_id": "EVT-000",
+      "stage": "clean_generation",
+      "issue_id": null,
+      "issue_type": null,
+      "description": "Generated clean company 'Alpine Precision Capital' with 37 invoices, 40 payments, 224 ledger rows. Trial balance: debit=95473580 == credit=95473580.",
+      "before_state": {},
+      "after_state": {
+        "total_debit_minor": 95473580,
+        "total_credit_minor": 95473580,
+        "invoices_count": 37,
+        "payments_count": 40,
+        "ledger_rows_count": 224
+      },
+      "affected_ids": []
+    },
+    {
+      "event_id": "EVT-001",
+      "stage": "distractor_injection",
+      "issue_id": null,
+      "issue_type": null,
+      "description": "Clean split payment distractor: invoice INV-2026-029 settled across 2 legitimate installments.",
+      "before_state": {},
+      "after_state": {},
+      "affected_ids": [
+        "DOC-INV-029",
+        "INV-2026-029",
+        "L-0113",
+        "L-0114",
+        "DOC-PAY-029",
+        "PAY-2026-029",
+        "L-0115",
+        "L-0116",
+        "DOC-PAY-030",
+        "PAY-2026-030",
+        "L-0117",
+        "L-0118"
+      ]
+    },
+    {
+      "event_id": "EVT-002",
+      "stage": "distractor_injection",
+      "issue_id": null,
+      "issue_type": null,
+      "description": "Clean split payment distractor: invoice INV-2026-030 settled across 2 legitimate installments.",
+      "before_state": {},
+      "after_state": {},
+      "affected_ids": [
+        "DOC-INV-030",
+        "INV-2026-030",
+        "L-0119",
+        "L-0120",
+        "DOC-PAY-031",
+        "PAY-2026-031",
+        "L-0121",
+        "L-0122",
+        "DOC-PAY-032",
+        "PAY-2026-032",
+        "L-0123",
+        "L-0124"
+      ]
+    },
+    {
+      "event_id": "EVT-003",
+      "stage": "distractor_injection",
+      "issue_id": null,
+      "issue_type": null,
+      "description": "Clean split payment distractor: invoice INV-2026-031 settled across 2 legitimate installments.",
+      "before_state": {},
+      "after_state": {},
+      "affected_ids": [
+        "DOC-INV-031",
+        "INV-2026-031",
+        "L-0125",
+        "L-0126",
+        "DOC-PAY-033",
+        "PAY-2026-033",
+        "L-0127",
+        "L-0128",
+        "DOC-PAY-034",
+        "PAY-2026-034",
+        "L-0129",
+        "L-0130"
+      ]
+    },
+    {
+      "event_id": "EVT-004",
+      "stage": "distractor_injection",
+      "issue_id": null,
+      "issue_type": null,
+      "description": "Clean recurring billing distractor for ENT-006 with identical amount 1478700.",
+      "before_state": {},
+      "after_state": {},
+      "affected_ids": [
+        "DOC-INV-032",
+        "INV-2026-032",
+        "DOC-PAY-035",
+        "PAY-2026-035",
+        "L-0131",
+        "L-0132",
+        "L-0133",
+        "L-0134",
+        "DOC-INV-033",
+        "INV-2026-033",
+        "DOC-PAY-036",
+        "PAY-2026-036",
+        "L-0135",
+        "L-0136",
+        "L-0137",
+        "L-0138"
+      ]
+    },
+    {
+      "event_id": "EVT-005",
+      "stage": "distractor_injection",
+      "issue_id": null,
+      "issue_type": null,
+      "description": "Clean recurring billing distractor for ENT-007 with identical amount 808500.",
+      "before_state": {},
+      "after_state": {},
+      "affected_ids": [
+        "DOC-INV-034",
+        "INV-2026-034",
+        "DOC-PAY-037",
+        "PAY-2026-037",
+        "L-0139",
+        "L-0140",
+        "L-0141",
+        "L-0142",
+        "DOC-INV-035",
+        "INV-2026-035",
+        "DOC-PAY-038",
+        "PAY-2026-038",
+        "L-0143",
+        "L-0144",
+        "L-0145",
+        "L-0146"
+      ]
+    },
+    {
+      "event_id": "EVT-006",
+      "stage": "distractor_injection",
+      "issue_id": null,
+      "issue_type": null,
+      "description": "Clean settled transaction with credit note review note on INV-2026-036.",
+      "before_state": {},
+      "after_state": {},
+      "affected_ids": [
+        "DOC-INV-036",
+        "INV-2026-036",
+        "DOC-PAY-039",
+        "PAY-2026-039",
+        "L-0147",
+        "L-0148",
+        "L-0149",
+        "L-0150"
+      ]
+    },
+    {
+      "event_id": "EVT-007",
+      "stage": "distractor_injection",
+      "issue_id": null,
+      "issue_type": null,
+      "description": "Clean settled transaction with credit note review note on INV-2026-037.",
+      "before_state": {},
+      "after_state": {},
+      "affected_ids": [
+        "DOC-INV-037",
+        "INV-2026-037",
+        "DOC-PAY-040",
+        "PAY-2026-040",
+        "L-0151",
+        "L-0152",
+        "L-0153",
+        "L-0154"
+      ]
+    },
+    {
+      "event_id": "EVT-009",
+      "stage": "error_injection",
+      "issue_id": "ISS-001",
+      "issue_type": "duplicate_invoice",
+      "description": "Injected duplicate invoice INV-2026-038 and ledger accrual L-0225 for original INV-2026-021.",
+      "before_state": {
+        "original_invoice_id": "INV-2026-021",
+        "original_row_id": "L-0081"
+      },
+      "after_state": {
+        "duplicate_doc_id": "DOC-INV-038",
+        "duplicate_invoice_id": "INV-2026-038",
+        "duplicate_row_id": "L-0225",
+        "discrepancy_base_minor": 837400
+      },
+      "affected_ids": [
+        "INV-2026-021",
+        "INV-2026-038",
+        "L-0225"
+      ]
+    },
+    {
+      "event_id": "EVT-010",
+      "stage": "error_injection",
+      "issue_id": "ISS-002",
+      "issue_type": "unallocated_or_partial_payment",
+      "description": "Reduced ledger settlement amount on L-0028 for payment PAY-2026-007.",
+      "before_state": {
+        "row_id": "L-0028",
+        "credit_minor": 496800
+      },
+      "after_state": {
+        "row_id": "L-0028",
+        "credit_minor": 298080,
+        "discrepancy_minor": 198720
+      },
+      "affected_ids": [
+        "INV-2026-007",
+        "L-0028",
+        "PAY-2026-007"
+      ]
+    },
+    {
+      "event_id": "EVT-011",
+      "stage": "error_injection",
+      "issue_id": "ISS-003",
+      "issue_type": "fx_conversion_error",
+      "description": "Applied wrong FX rate on ledger row L-0061 for foreign invoice INV-2026-016.",
+      "before_state": {
+        "row_id": "L-0061",
+        "debit_minor": 2464592,
+        "fx_id": "FX-2026-07-13-USD-CHF"
+      },
+      "after_state": {
+        "row_id": "L-0061",
+        "debit_minor": 2834280,
+        "expected_base_minor": 2464592,
+        "discrepancy_minor": 369688
+      },
+      "affected_ids": [
+        "FX-2026-07-13-USD-CHF",
+        "INV-2026-016",
+        "L-0061"
+      ]
+    },
+    {
+      "event_id": "EVT-012",
+      "stage": "error_injection",
+      "issue_id": "ISS-004",
+      "issue_type": "period_cutoff_error",
+      "description": "Moved invoice INV-2026-023 and ledger row L-0089 outside period end to 2026-08-03T11:20:00+01:00.",
+      "before_state": {
+        "invoice_id": "INV-2026-023",
+        "issued_at": "2026-07-25T14:34:00+01:00"
+      },
+      "after_state": {
+        "invoice_id": "INV-2026-023",
+        "issued_at": "2026-08-03T11:20:00+01:00",
+        "row_id": "L-0089",
+        "discrepancy_minor": 552000
+      },
+      "affected_ids": [
+        "INV-2026-023",
+        "L-0089"
+      ]
+    },
+    {
+      "event_id": "EVT-013",
+      "stage": "error_injection",
+      "issue_id": "ISS-005",
+      "issue_type": "period_cutoff_error",
+      "description": "Moved invoice INV-2026-014 and ledger row L-0053 outside period end to 2026-08-03T11:20:00+01:00.",
+      "before_state": {
+        "invoice_id": "INV-2026-014",
+        "issued_at": "2026-07-11T16:41:00+01:00"
+      },
+      "after_state": {
+        "invoice_id": "INV-2026-014",
+        "issued_at": "2026-08-03T11:20:00+01:00",
+        "row_id": "L-0053",
+        "discrepancy_minor": 916300
+      },
+      "affected_ids": [
+        "INV-2026-014",
+        "L-0053"
+      ]
+    }
+  ]
+}

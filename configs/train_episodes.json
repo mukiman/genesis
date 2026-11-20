@@ -1,0 +1,194 @@
+[
+  {
+    "episode_id": "ep_train_001",
+    "seed": 1101,
+    "company_name": "Aethelgard FinTech Ltd",
+    "base_currency": "USD",
+    "foreign_currencies": ["EUR", "GBP"],
+    "period_start": "2026-01-01",
+    "period_end": "2026-01-31",
+    "tz_offset": "+00:00",
+    "timezone": "UTC",
+    "fx_rate_date_rule": "transaction_date",
+    "rounding_mode": "HALF_EVEN",
+    "error_config": {
+      "clean_only": true
+    }
+  },
+  {
+    "episode_id": "ep_train_002",
+    "seed": 1102,
+    "company_name": "Caspian Trade Systems",
+    "base_currency": "KZT",
+    "foreign_currencies": ["USD", "EUR"],
+    "period_start": "2026-02-01",
+    "period_end": "2026-02-28",
+    "tz_offset": "+05:00",
+    "timezone": "Asia/Almaty",
+    "fx_rate_date_rule": "invoice_issue_date",
+    "rounding_mode": "HALF_UP",
+    "error_config": {
+      "clean_only": true
+    }
+  },
+  {
+    "episode_id": "ep_train_003",
+    "seed": 1103,
+    "company_name": "Boreal Logistics Corp",
+    "base_currency": "USD",
+    "foreign_currencies": ["EUR", "JPY"],
+    "period_start": "2026-03-01",
+    "period_end": "2026-03-31",
+    "tz_offset": "+00:00",
+    "timezone": "UTC",
+    "fx_rate_date_rule": "transaction_date",
+    "rounding_mode": "HALF_EVEN",
+    "error_config": {
+      "duplicate_invoice": 2,
+      "unallocated_or_partial_payment": 1,
+      "fx_conversion_error": 0,
+      "period_cutoff_error": 0,
+      "interacting_scenarios": []
+    }
+  },
+  {
+    "episode_id": "ep_train_004",
+    "seed": 1104,
+    "company_name": "Helios Industrial AG",
+    "base_currency": "EUR",
+    "foreign_currencies": ["USD", "CHF"],
+    "period_start": "2026-04-01",
+    "period_end": "2026-04-30",
+    "tz_offset": "+01:00",
+    "timezone": "Europe/Berlin",
+    "fx_rate_date_rule": "previous_business_day",
+    "rounding_mode": "HALF_EVEN",
+    "error_config": {
+      "duplicate_invoice": 0,
+      "unallocated_or_partial_payment": 1,
+      "fx_conversion_error": 2,
+      "period_cutoff_error": 1,
+      "interacting_scenarios": []
+    }
+  },
+  {
+    "episode_id": "ep_train_005",
+    "seed": 1105,
+    "company_name": "Delta Meridian Holdings",
+    "base_currency": "GBP",
+    "foreign_currencies": ["USD", "EUR"],
+    "period_start": "2026-05-01",
+    "period_end": "2026-05-31",
+    "tz_offset": "+00:00",
+    "timezone": "Europe/London",
+    "fx_rate_date_rule": "transaction_date",
+    "rounding_mode": "HALF_UP",
+    "error_config": {
+      "duplicate_invoice": 1,
+      "unallocated_or_partial_payment": 1,
+      "fx_conversion_error": 1,
+      "period_cutoff_error": 1,
+      "interacting_scenarios": []
+    }
+  },
+  {
+    "episode_id": "ep_train_006",
+    "seed": 1106,
+    "company_name": "Kvantum Analytics LLP",
+    "base_currency": "KZT",
+    "foreign_currencies": ["USD", "EUR"],
+    "period_start": "2026-06-01",
+    "period_end": "2026-06-30",
+    "tz_offset": "+05:00",
+    "timezone": "Asia/Almaty",
+    "fx_rate_date_rule": "invoice_issue_date",
+    "rounding_mode": "HALF_EVEN",
+    "error_config": {
+      "duplicate_invoice": 1,
+      "unallocated_or_partial_payment": 2,
+      "fx_conversion_error": 1,
+      "period_cutoff_error": 1,
+      "interacting_scenarios": []
+    }
+  },
+  {
+    "episode_id": "ep_train_007",
+    "seed": 1107,
+    "company_name": "Nordic Horizon Group",
+    "base_currency": "CHF",
+    "foreign_currencies": ["EUR", "USD"],
+    "period_start": "2026-07-01",
+    "period_end": "2026-07-31",
+    "tz_offset": "+01:00",
+    "timezone": "Europe/Zurich",
+    "fx_rate_date_rule": "previous_business_day",
+    "rounding_mode": "DOWN",
+    "error_config": {
+      "duplicate_invoice": 1,
+      "unallocated_or_partial_payment": 0,
+      "fx_conversion_error": 1,
+      "period_cutoff_error": 2,
+      "interacting_scenarios": []
+    }
+  },
+  {
+    "episode_id": "ep_train_008",
+    "seed": 1108,
+    "company_name": "Eurasia Cloud Ventures",
+    "base_currency": "USD",
+    "foreign_currencies": ["EUR", "KZT"],
+    "period_start": "2026-08-01",
+    "period_end": "2026-08-31",
+    "tz_offset": "+05:00",
+    "timezone": "Asia/Almaty",
+    "fx_rate_date_rule": "transaction_date",
+    "rounding_mode": "HALF_EVEN",
+    "error_config": {
+      "duplicate_invoice": 1,
+      "unallocated_or_partial_payment": 0,
+      "fx_conversion_error": 0,
+      "period_cutoff_error": 1,
+      "interacting_scenarios": ["partial_fx_cutoff"]
+    }
+  },
+  {
+    "episode_id": "ep_train_009",
+    "seed": 1109,
+    "company_name": "Orion Supply Chain Inc",
+    "base_currency": "EUR",
+    "foreign_currencies": ["USD", "GBP"],
+    "period_start": "2026-09-01",
+    "period_end": "2026-09-30",
+    "tz_offset": "+01:00",
+    "timezone": "Europe/Paris",
+    "fx_rate_date_rule": "invoice_issue_date",
+    "rounding_mode": "HALF_UP",
+    "error_config": {
+      "duplicate_invoice": 0,
+      "unallocated_or_partial_payment": 1,
+      "fx_conversion_error": 1,
+      "period_cutoff_error": 0,
+      "interacting_scenarios": ["duplicate_fx_cutoff"]
+    }
+  },
+  {
+    "episode_id": "ep_train_010",
+    "seed": 1110,
+    "company_name": "Vanguard Digital Commerce",
+    "base_currency": "USD",
+    "foreign_currencies": ["EUR", "GBP", "JPY"],
+    "period_start": "2026-10-01",
+    "period_end": "2026-10-31",
+    "tz_offset": "+00:00",
+    "timezone": "UTC",
+    "fx_rate_date_rule": "previous_business_day",
+    "rounding_mode": "HALF_EVEN",
+    "error_config": {
+      "duplicate_invoice": 1,
+      "unallocated_or_partial_payment": 1,
+      "fx_conversion_error": 1,
+      "period_cutoff_error": 1,
+      "interacting_scenarios": ["partial_fx_cutoff", "duplicate_fx_cutoff"]
+    }
+  }
+]

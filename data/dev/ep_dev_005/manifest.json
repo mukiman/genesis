@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0.0",
+  "episode_id": "ep_dev_005",
+  "company_name": "Albion Merchant Partners",
+  "base_currency": "GBP",
+  "period_start": "2026-05-01",
+  "period_end": "2026-05-31",
+  "timezone": "Europe/London",
+  "rounding_mode": "HALF_UP",
+  "currency_exponents": {
+    "USD": 2,
+    "EUR": 2,
+    "GBP": 2,
+    "KZT": 2,
+    "JPY": 0,
+    "CHF": 2
+  },
+  "ledger_rows_count": 228,
+  "invoices_count": 39,
+  "payments_count": 40,
+  "fx_rates_count": 122
+}
