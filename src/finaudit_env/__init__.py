@@ -6,6 +6,7 @@ investigation environment, 1-to-1 finding matcher, and reward evaluator.
 
 from finaudit_env.env.core import AuditEnv, FinAuditEnv
 from finaudit_env.env.isolated_client import IsolatedFinAuditClient, IsolatedFinAuditEnv
+from finaudit_env.judge_adapter import JudgeEnvAdapter, generate_episode, make_env, score_episode
 from finaudit_env.schemas import SCHEMA_VERSION
 
 __version__ = SCHEMA_VERSION
@@ -17,4 +18,8 @@ __all__ = [
     "AuditEnv",
     "IsolatedFinAuditEnv",
     "IsolatedFinAuditClient",
+    "JudgeEnvAdapter",
+    "generate_episode",
+    "make_env",
+    "score_episode",
 ]

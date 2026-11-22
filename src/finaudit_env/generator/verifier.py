@@ -149,6 +149,7 @@ def verify_episode(episode_data: dict[str, Any]) -> dict[str, Any]:
     period_end_date = extract_iso_date(manifest.period_end)
 
     for iss in truth.issues:
+        iss_tol = iss.tolerance_minor if iss.tolerance_minor is not None else policy.amount_tolerance_minor
         if iss.expected_amount_minor <= 0:
             independent_evidence_sufficiency = False
             errors.append(f"Issue {iss.issue_id} has non-positive expected_amount_minor={iss.expected_amount_minor}")
@@ -189,7 +190,7 @@ def verify_episode(episode_data: dict[str, Any]) -> dict[str, Any]:
                 if inv_a.entity_id != inv_b.entity_id or inv_a.total_minor != inv_b.total_minor:
                     independent_evidence_sufficiency = False
                     errors.append(f"Duplicate invoice issue {iss.issue_id} invoices do not match entity/amount")
-            if not any(abs(r.debit_minor - iss.expected_amount_minor) <= iss.tolerance_minor for r in ref_rows):
+            if not any(abs(r.debit_minor - iss.expected_amount_minor) <= iss_tol for r in ref_rows):
                 independent_evidence_sufficiency = False
                 errors.append(f"Duplicate invoice issue {iss.issue_id} ledger amount does not match expected_amount_minor")
 
@@ -218,12 +219,15 @@ def verify_episode(episode_data: dict[str, Any]) -> dict[str, Any]:
                         fx_r.rate,
                         policy.rounding_mode,
                     )
-                recorded_amounts = [max(r.debit_minor, r.credit_minor) for r in ref_rows]
-                if not any(abs((expected_pay_base - rec) - iss.expected_amount_minor) <= iss.tolerance_minor for rec in recorded_amounts):
+                allocated_amounts = [
+                    0 if r.invoice_id is None else max(r.debit_minor, r.credit_minor)
+                    for r in ref_rows
+                ]
+                if not any(abs((expected_pay_base - rec) - iss.expected_amount_minor) <= iss_tol for rec in allocated_amounts):
                     independent_evidence_sufficiency = False
                     errors.append(
                         f"Payment issue {iss.issue_id} discrepancy mismatch: expected_pay_base={expected_pay_base}, "
-                        f"recorded={recorded_amounts}, truth={iss.expected_amount_minor}"
+                        f"allocated={allocated_amounts}, truth={iss.expected_amount_minor}"
                     )
 
         elif iss.type == IssueType.FX_CONVERSION_ERROR:
@@ -248,7 +252,7 @@ def verify_episode(episode_data: dict[str, Any]) -> dict[str, Any]:
                     policy.rounding_mode,
                 )
                 recorded_amounts = [max(r.debit_minor, r.credit_minor) for r in ref_rows]
-                if not any(abs(abs(rec - correct_base) - iss.expected_amount_minor) <= iss.tolerance_minor for rec in recorded_amounts):
+                if not any(abs(abs(rec - correct_base) - iss.expected_amount_minor) <= iss_tol for rec in recorded_amounts):
                     independent_evidence_sufficiency = False
                     errors.append(
                         f"FX issue {iss.issue_id} discrepancy mismatch: correct_base={correct_base}, "
@@ -264,7 +268,7 @@ def verify_episode(episode_data: dict[str, Any]) -> dict[str, Any]:
             if not out_of_period_found:
                 independent_evidence_sufficiency = False
                 errors.append(f"Cutoff issue {iss.issue_id} has no ledger row timestamp outside reporting period")
-            if not any(abs(max(r.debit_minor, r.credit_minor) - iss.expected_amount_minor) <= iss.tolerance_minor for r in ref_rows):
+            if not any(abs(max(r.debit_minor, r.credit_minor) - iss.expected_amount_minor) <= iss_tol for r in ref_rows):
                 independent_evidence_sufficiency = False
                 errors.append(f"Cutoff issue {iss.issue_id} ledger amount does not match expected_amount_minor")
 

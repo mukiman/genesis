@@ -41,7 +41,59 @@ docker run --rm --network none --cpus=2 --memory=4g finaudit-rl-env
 
 ---
 
-## 2. Дополнительные CLI-команды
+## 2. Подключение к тестирующей системе жюри (`judge_adapter.py`)
+
+В соответствии с официальными определениями проверок (`fintech-checks.html`), в корне репозитория (`/app/judge_adapter.py` в контейнере, а также `finaudit_env.judge_adapter`) расположен единый Python-адаптер жюри:
+
+```python
+import judge_adapter
+
+# 1. Генерация эпизода (открытые файлы + закрытые truth.json и provenance.json)
+judge_adapter.generate_episode(seed=42, config={"duplicate_invoice": 1}, output_dir="/tmp/ep_001")
+
+# 2. Создание среды (reset / step в стиле Gymnasium JSON)
+env = judge_adapter.make_env()
+obs, info = env.reset(seed=42, config={"mode": "closed", "episode_dir": "/tmp/ep_001"})
+obs, reward, terminated, truncated, info = env.step({
+    "name": "list_records",
+    "args": {"table": "ledger", "cursor": None, "limit": 50},
+})
+
+# 3. Закрытая оценка выводов оценщиком (возвращает tp, fp, fn, precision, recall, f1, return)
+score = judge_adapter.score_episode(
+    episode_dir="/tmp/ep_001",
+    findings={"episode_id": "ep_001", "findings": []},
+    inspection_steps=1,
+)
+```
+
+### Соответствие 4 типов ошибок (`IssueType`) и настройка генератора
+| Канонический тип (`type` в `truth.json` / `findings.json`) | Ключ в `config` (`generate_episode`) | Описание | Канонические `affected_ids` |
+| :--- | :--- | :--- | :--- |
+| `"duplicate_invoice"` | `"duplicate_invoice": int` | Дубликат счёта-фактуры | `[orig_invoice_id, dup_invoice_id, dup_ledger_row_id]` |
+| `"unallocated_or_partial_payment"` | `"unallocated_or_partial_payment": int` (или `"unallocated_payment"` / `"partial_payment"`) | Пропущенное или частичное распределение платежа | `[invoice_id, payment_id, settlement_ledger_row_id]` |
+| `"fx_conversion_error"` | `"fx_conversion_error": int` | Неверная дата или курс конвертации валюты по `policy.json` | `[invoice_id, accrual_ledger_row_id, fx_id]` |
+| `"period_cutoff_error"` | `"period_cutoff_error": int` | Ошибка отнесения операции к отчётному периоду | `[invoice_id, accrual_ledger_row_id]` |
+
+- **Два сценария взаимодействующих ошибок (`"interacting_scenarios": [...]`)**:
+  1. `"partial_fx_cutoff"` — счёт и частичный платёж в иностранной валюте на границе отчётного периода с ошибкой курса конвертации и неполным распределением платежа.
+  2. `"duplicate_fx_cutoff"` — дублирование валютного счёта через границу отчётного периода.
+- **Чистые компании и отвлекающие случаи (`distractors`)**: `"clean_only": True` (флаги `"enable_split_payments"`, `"enable_refunds"`, `"enable_recurring_payments"`).
+
+### Схемы наблюдений и результатов `judge_adapter.py`
+- **Первое `observation` после `reset`**: `{"task": str, "manifest": dict, "policy": dict, "remaining_steps": 100}`.
+- **Последующие `observation` после `step`**: `{"result": value_or_null, "error": null_or_object, "remaining_steps": int}`:
+  - `list_records`: `result = {"records": [...], "next_cursor": str | None}` (до 50 строк на страницу).
+  - `get_record` / `get_document`: `result = <объект записи или документа>`.
+  - `calculator`: `result = "<десятичная строка>"` (например, `"0.3"`).
+  - `submit`: `result = {"accepted": True}` (или ограниченная ошибка структуры `{"code": "INVALID_SUBMISSION_STRUCTURE", "message": "..."}`; в режиме `mode="closed"` возвращаемый политике `reward` равен `0`).
+- **Результат `score_episode(episode_dir, findings, inspection_steps)`**:
+  - Валидный `submit`: `{"tp": int, "fp": int, "fn": int, "precision": float, "recall": float, "f1": float, "return": float}` (допуск по умолчанию $\tau = 0$, если в `truth.json` не задан `tolerance_minor`).
+  - Невалидная структура `submit`: `{"tp": None, "fp": None, "fn": None, "precision": None, "recall": None, "f1": None, "return": -1}`.
+
+---
+
+## 3. Дополнительные CLI-команды
 
 ```bash
 # Интерактивное демо работы среды и пошаговый разбор SimpleReconcilerPolicy
@@ -117,10 +169,12 @@ finaudit-rl-env/
 
 | Базовая политика | Mean Precision | Mean Recall | Mean F1 | Mean Reward | Mean Steps | Mean Time (s) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| `oracle` *(верхняя граница оценщика)* | `1.0000` | `1.0000` | `1.0000` | **`+0.9984`** | `1.80` | `0.0178` |
-| `simple_reconciler` *(честная сверка)* | `0.9678` | `0.9875` | `0.9768` | **`+0.9314`** | `12.10` | `0.0655` |
-| `random_explorer` *(случайный поиск)* | `0.2000` | `0.2000` | `0.2000` | **`-0.6029`** | `7.45` | `0.0234` |
-| `flag_all_attack` *(атака «пометить всё»)* | `0.0000` | `0.0000` | `0.0000` | **`-1.0000`** | `3.00` | `0.0320` |
+| `oracle` *(верхняя граница оценщика)* | `0.8000` | `0.8000` | `1.0000` | **`+0.9984`** | `1.80` | `0.0474` |
+| `simple_reconciler` *(честная сверка)* | `0.7678` | `0.7875` | `0.9768` | **`+0.9314`** | `12.10` | `0.2687` |
+| `random_explorer` *(случайный поиск)* | `0.0000` | `0.0000` | `0.2000` | **`-0.6029`** | `7.45` | `0.0750` |
+| `flag_all_attack` *(атака «пометить всё»)* | `0.0000` | `0.0000` | `0.0000` | **`-1.0000`** | `3.00` | `0.1148` |
+
+*(Примечание: на 4 чистых компаниях из 20 при пустом эталоне и пустом ответе по правилу §05 `P=0, R=0, F1=1`, поэтому средние `P` и `R` у идеального `oracle` равны `16/20 = 0.8000` при `Mean F1 = 1.0000`).*
 
 - **Парные проверки обобщения (`permute_and_remap_episode`)**: `20 / 20 PASS` (100% инвариантность ответа и награды `oracle` и `simple_reconciler` при полной смене ID и перестановке строк).
 - **Проверка утечек эталона в `artifacts/trajectories.jsonl`**: `0 нарушений`.

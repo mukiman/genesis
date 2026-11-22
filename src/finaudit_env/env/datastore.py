@@ -292,8 +292,10 @@ class EpisodeDataStore:
         next_offset = offset + len(page_slice)
         next_cursor: str | None = str(next_offset) if next_offset < total_count else None
 
+        items_copy = copy.deepcopy(page_slice)
         return {
             "table": table,
+            "records": items_copy,
             "items": copy.deepcopy(page_slice),
             "next_cursor": next_cursor,
             "total_count": total_count,

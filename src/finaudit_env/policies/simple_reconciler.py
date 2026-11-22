@@ -385,7 +385,7 @@ class SimpleReconcilerPolicy(BasePolicy):
                     exponents=exponents,
                 )
 
-            recorded_credit = int(ar_row["credit_minor"])
+            recorded_credit = 0 if not ar_row.get("invoice_id") else int(ar_row["credit_minor"])
             diff = abs(expected_pay_base - recorded_credit)
             if diff > tolerance:
                 findings.append(

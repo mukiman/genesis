@@ -290,12 +290,12 @@
   "policies": {
     "random_explorer": {
       "episodes_count": 20,
-      "mean_precision": 0.2,
-      "mean_recall": 0.2,
+      "mean_precision": 0.0,
+      "mean_recall": 0.0,
       "mean_f1": 0.2,
       "mean_reward": -0.6029,
       "mean_steps": 7.45,
-      "mean_elapsed_seconds": 0.0163,
+      "mean_elapsed_seconds": 0.07495,
       "total_tp": 0,
       "total_fp": 7,
       "total_fn": 76,
@@ -305,24 +305,24 @@
           "tp": 0,
           "fp": 0,
           "fn": 0,
-          "precision": 1.0,
-          "recall": 1.0,
+          "precision": 0.0,
+          "recall": 0.0,
           "f1": 1.0,
           "reward": 0.988,
           "steps": 7,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.062
         },
         {
           "episode_id": "ep_train_002",
           "tp": 0,
           "fp": 0,
           "fn": 0,
-          "precision": 1.0,
-          "recall": 1.0,
+          "precision": 0.0,
+          "recall": 0.0,
           "f1": 1.0,
           "reward": 0.986,
           "steps": 8,
-          "elapsed_seconds": 0.015
+          "elapsed_seconds": 0.063
         },
         {
           "episode_id": "ep_train_003",
@@ -334,7 +334,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 9,
-          "elapsed_seconds": 0.015
+          "elapsed_seconds": 0.125
         },
         {
           "episode_id": "ep_train_004",
@@ -346,7 +346,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 5,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.094
         },
         {
           "episode_id": "ep_train_005",
@@ -358,7 +358,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 8,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.078
         },
         {
           "episode_id": "ep_train_006",
@@ -370,7 +370,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 10,
-          "elapsed_seconds": 0.032
+          "elapsed_seconds": 0.093
         },
         {
           "episode_id": "ep_train_007",
@@ -382,7 +382,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 5,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.078
         },
         {
           "episode_id": "ep_train_008",
@@ -394,7 +394,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 6,
-          "elapsed_seconds": 0.015
+          "elapsed_seconds": 0.047
         },
         {
           "episode_id": "ep_train_009",
@@ -406,7 +406,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 5,
-          "elapsed_seconds": 0.015
+          "elapsed_seconds": 0.062
         },
         {
           "episode_id": "ep_train_010",
@@ -418,31 +418,31 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 7,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.094
         },
         {
           "episode_id": "ep_dev_001",
           "tp": 0,
           "fp": 0,
           "fn": 0,
-          "precision": 1.0,
-          "recall": 1.0,
+          "precision": 0.0,
+          "recall": 0.0,
           "f1": 1.0,
           "reward": 0.984,
           "steps": 9,
-          "elapsed_seconds": 0.015
+          "elapsed_seconds": 0.079
         },
         {
           "episode_id": "ep_dev_002",
           "tp": 0,
           "fp": 0,
           "fn": 0,
-          "precision": 1.0,
-          "recall": 1.0,
+          "precision": 0.0,
+          "recall": 0.0,
           "f1": 1.0,
           "reward": 0.984,
           "steps": 9,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.078
         },
         {
           "episode_id": "ep_dev_003",
@@ -454,7 +454,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 8,
-          "elapsed_seconds": 0.015
+          "elapsed_seconds": 0.078
         },
         {
           "episode_id": "ep_dev_004",
@@ -466,7 +466,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 5,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.062
         },
         {
           "episode_id": "ep_dev_005",
@@ -478,7 +478,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 5,
-          "elapsed_seconds": 0.015
+          "elapsed_seconds": 0.047
         },
         {
           "episode_id": "ep_dev_006",
@@ -490,7 +490,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 9,
-          "elapsed_seconds": 0.015
+          "elapsed_seconds": 0.078
         },
         {
           "episode_id": "ep_dev_007",
@@ -502,7 +502,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 8,
-          "elapsed_seconds": 0.015
+          "elapsed_seconds": 0.062
         },
         {
           "episode_id": "ep_dev_008",
@@ -514,7 +514,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 10,
-          "elapsed_seconds": 0.015
+          "elapsed_seconds": 0.062
         },
         {
           "episode_id": "ep_dev_009",
@@ -526,7 +526,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 9,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.047
         },
         {
           "episode_id": "ep_dev_010",
@@ -538,18 +538,18 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 7,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.11
         }
       ]
     },
     "simple_reconciler": {
       "episodes_count": 20,
-      "mean_precision": 0.9678,
-      "mean_recall": 0.9875,
+      "mean_precision": 0.7678,
+      "mean_recall": 0.7875,
       "mean_f1": 0.9768,
       "mean_reward": 0.9314,
       "mean_steps": 12.1,
-      "mean_elapsed_seconds": 0.04065,
+      "mean_elapsed_seconds": 0.2687,
       "total_tp": 74,
       "total_fp": 5,
       "total_fn": 2,
@@ -559,24 +559,24 @@
           "tp": 0,
           "fp": 0,
           "fn": 0,
-          "precision": 1.0,
-          "recall": 1.0,
+          "precision": 0.0,
+          "recall": 0.0,
           "f1": 1.0,
           "reward": 0.978,
           "steps": 12,
-          "elapsed_seconds": 0.031
+          "elapsed_seconds": 0.203
         },
         {
           "episode_id": "ep_train_002",
           "tp": 0,
           "fp": 0,
           "fn": 0,
-          "precision": 1.0,
-          "recall": 1.0,
+          "precision": 0.0,
+          "recall": 0.0,
           "f1": 1.0,
           "reward": 0.978,
           "steps": 12,
-          "elapsed_seconds": 0.047
+          "elapsed_seconds": 0.25
         },
         {
           "episode_id": "ep_train_003",
@@ -588,7 +588,7 @@
           "f1": 1.0,
           "reward": 0.978,
           "steps": 12,
-          "elapsed_seconds": 0.063
+          "elapsed_seconds": 0.234
         },
         {
           "episode_id": "ep_train_004",
@@ -600,7 +600,7 @@
           "f1": 1.0,
           "reward": 0.978,
           "steps": 12,
-          "elapsed_seconds": 0.047
+          "elapsed_seconds": 0.36
         },
         {
           "episode_id": "ep_train_005",
@@ -612,7 +612,7 @@
           "f1": 1.0,
           "reward": 0.978,
           "steps": 12,
-          "elapsed_seconds": 0.047
+          "elapsed_seconds": 0.359
         },
         {
           "episode_id": "ep_train_006",
@@ -624,7 +624,7 @@
           "f1": 1.0,
           "reward": 0.978,
           "steps": 12,
-          "elapsed_seconds": 0.062
+          "elapsed_seconds": 0.328
         },
         {
           "episode_id": "ep_train_007",
@@ -636,7 +636,7 @@
           "f1": 0.8888888888888888,
           "reward": 0.7557777777777777,
           "steps": 12,
-          "elapsed_seconds": 0.032
+          "elapsed_seconds": 0.297
         },
         {
           "episode_id": "ep_train_008",
@@ -648,7 +648,7 @@
           "f1": 1.0,
           "reward": 0.978,
           "steps": 12,
-          "elapsed_seconds": 0.047
+          "elapsed_seconds": 0.281
         },
         {
           "episode_id": "ep_train_009",
@@ -660,7 +660,7 @@
           "f1": 1.0,
           "reward": 0.978,
           "steps": 12,
-          "elapsed_seconds": 0.047
+          "elapsed_seconds": 0.235
         },
         {
           "episode_id": "ep_train_010",
@@ -672,31 +672,31 @@
           "f1": 0.9411764705882353,
           "reward": 0.8583529411764705,
           "steps": 13,
-          "elapsed_seconds": 0.046
+          "elapsed_seconds": 0.266
         },
         {
           "episode_id": "ep_dev_001",
           "tp": 0,
           "fp": 0,
           "fn": 0,
-          "precision": 1.0,
-          "recall": 1.0,
+          "precision": 0.0,
+          "recall": 0.0,
           "f1": 1.0,
           "reward": 0.978,
           "steps": 12,
-          "elapsed_seconds": 0.031
+          "elapsed_seconds": 0.375
         },
         {
           "episode_id": "ep_dev_002",
           "tp": 0,
           "fp": 0,
           "fn": 0,
-          "precision": 1.0,
-          "recall": 1.0,
+          "precision": 0.0,
+          "recall": 0.0,
           "f1": 1.0,
           "reward": 0.978,
           "steps": 12,
-          "elapsed_seconds": 0.031
+          "elapsed_seconds": 0.375
         },
         {
           "episode_id": "ep_dev_003",
@@ -708,7 +708,7 @@
           "f1": 1.0,
           "reward": 0.978,
           "steps": 12,
-          "elapsed_seconds": 0.032
+          "elapsed_seconds": 0.328
         },
         {
           "episode_id": "ep_dev_004",
@@ -720,7 +720,7 @@
           "f1": 1.0,
           "reward": 0.978,
           "steps": 12,
-          "elapsed_seconds": 0.031
+          "elapsed_seconds": 0.187
         },
         {
           "episode_id": "ep_dev_005",
@@ -732,7 +732,7 @@
           "f1": 1.0,
           "reward": 0.978,
           "steps": 12,
-          "elapsed_seconds": 0.031
+          "elapsed_seconds": 0.203
         },
         {
           "episode_id": "ep_dev_006",
@@ -744,7 +744,7 @@
           "f1": 1.0,
           "reward": 0.978,
           "steps": 12,
-          "elapsed_seconds": 0.032
+          "elapsed_seconds": 0.219
         },
         {
           "episode_id": "ep_dev_007",
@@ -756,7 +756,7 @@
           "f1": 1.0,
           "reward": 0.978,
           "steps": 12,
-          "elapsed_seconds": 0.032
+          "elapsed_seconds": 0.234
         },
         {
           "episode_id": "ep_dev_008",
@@ -768,7 +768,7 @@
           "f1": 1.0,
           "reward": 0.978,
           "steps": 12,
-          "elapsed_seconds": 0.031
+          "elapsed_seconds": 0.187
         },
         {
           "episode_id": "ep_dev_009",
@@ -780,7 +780,7 @@
           "f1": 1.0,
           "reward": 0.978,
           "steps": 12,
-          "elapsed_seconds": 0.046
+          "elapsed_seconds": 0.203
         },
         {
           "episode_id": "ep_dev_010",
@@ -792,7 +792,7 @@
           "f1": 0.7058823529411765,
           "reward": 0.387764705882353,
           "steps": 13,
-          "elapsed_seconds": 0.047
+          "elapsed_seconds": 0.25
         }
       ]
     },
@@ -803,7 +803,7 @@
       "mean_f1": 0.0,
       "mean_reward": -1.0,
       "mean_steps": 3.0,
-      "mean_elapsed_seconds": 0.01815,
+      "mean_elapsed_seconds": 0.11475,
       "total_tp": 0,
       "total_fp": 600,
       "total_fn": 76,
@@ -818,7 +818,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 3,
-          "elapsed_seconds": 0.015
+          "elapsed_seconds": 0.094
         },
         {
           "episode_id": "ep_train_002",
@@ -830,7 +830,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 3,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.171
         },
         {
           "episode_id": "ep_train_003",
@@ -842,7 +842,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 3,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.172
         },
         {
           "episode_id": "ep_train_004",
@@ -854,7 +854,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 3,
-          "elapsed_seconds": 0.031
+          "elapsed_seconds": 0.078
         },
         {
           "episode_id": "ep_train_005",
@@ -866,7 +866,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 3,
-          "elapsed_seconds": 0.032
+          "elapsed_seconds": 0.094
         },
         {
           "episode_id": "ep_train_006",
@@ -878,7 +878,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 3,
-          "elapsed_seconds": 0.015
+          "elapsed_seconds": 0.078
         },
         {
           "episode_id": "ep_train_007",
@@ -890,7 +890,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 3,
-          "elapsed_seconds": 0.032
+          "elapsed_seconds": 0.109
         },
         {
           "episode_id": "ep_train_008",
@@ -902,7 +902,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 3,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.109
         },
         {
           "episode_id": "ep_train_009",
@@ -914,7 +914,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 3,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.109
         },
         {
           "episode_id": "ep_train_010",
@@ -926,7 +926,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 3,
-          "elapsed_seconds": 0.015
+          "elapsed_seconds": 0.109
         },
         {
           "episode_id": "ep_dev_001",
@@ -938,7 +938,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 3,
-          "elapsed_seconds": 0.015
+          "elapsed_seconds": 0.078
         },
         {
           "episode_id": "ep_dev_002",
@@ -950,7 +950,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 3,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.328
         },
         {
           "episode_id": "ep_dev_003",
@@ -962,7 +962,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 3,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.125
         },
         {
           "episode_id": "ep_dev_004",
@@ -974,7 +974,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 3,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.109
         },
         {
           "episode_id": "ep_dev_005",
@@ -986,7 +986,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 3,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.094
         },
         {
           "episode_id": "ep_dev_006",
@@ -998,7 +998,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 3,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.094
         },
         {
           "episode_id": "ep_dev_007",
@@ -1010,7 +1010,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 3,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.078
         },
         {
           "episode_id": "ep_dev_008",
@@ -1022,7 +1022,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 3,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.078
         },
         {
           "episode_id": "ep_dev_009",
@@ -1034,7 +1034,7 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 3,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.125
         },
         {
           "episode_id": "ep_dev_010",
@@ -1046,18 +1046,18 @@
           "f1": 0.0,
           "reward": -1.0,
           "steps": 3,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.063
         }
       ]
     },
     "oracle": {
       "episodes_count": 20,
-      "mean_precision": 1.0,
-      "mean_recall": 1.0,
+      "mean_precision": 0.8,
+      "mean_recall": 0.8,
       "mean_f1": 1.0,
       "mean_reward": 0.9984,
       "mean_steps": 1.8,
-      "mean_elapsed_seconds": 0.01085,
+      "mean_elapsed_seconds": 0.0474,
       "total_tp": 76,
       "total_fp": 0,
       "total_fn": 0,
@@ -1067,24 +1067,24 @@
           "tp": 0,
           "fp": 0,
           "fn": 0,
-          "precision": 1.0,
-          "recall": 1.0,
+          "precision": 0.0,
+          "recall": 0.0,
           "f1": 1.0,
           "reward": 1.0,
           "steps": 1,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.031
         },
         {
           "episode_id": "ep_train_002",
           "tp": 0,
           "fp": 0,
           "fn": 0,
-          "precision": 1.0,
-          "recall": 1.0,
+          "precision": 0.0,
+          "recall": 0.0,
           "f1": 1.0,
           "reward": 1.0,
           "steps": 1,
-          "elapsed_seconds": 0.015
+          "elapsed_seconds": 0.109
         },
         {
           "episode_id": "ep_train_003",
@@ -1096,7 +1096,7 @@
           "f1": 1.0,
           "reward": 0.998,
           "steps": 2,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.046
         },
         {
           "episode_id": "ep_train_004",
@@ -1108,7 +1108,7 @@
           "f1": 1.0,
           "reward": 0.998,
           "steps": 2,
-          "elapsed_seconds": 0.015
+          "elapsed_seconds": 0.046
         },
         {
           "episode_id": "ep_train_005",
@@ -1120,7 +1120,7 @@
           "f1": 1.0,
           "reward": 0.998,
           "steps": 2,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.032
         },
         {
           "episode_id": "ep_train_006",
@@ -1132,7 +1132,7 @@
           "f1": 1.0,
           "reward": 0.998,
           "steps": 2,
-          "elapsed_seconds": 0.0
+          "elapsed_seconds": 0.047
         },
         {
           "episode_id": "ep_train_007",
@@ -1144,7 +1144,7 @@
           "f1": 1.0,
           "reward": 0.998,
           "steps": 2,
-          "elapsed_seconds": 0.015
+          "elapsed_seconds": 0.031
         },
         {
           "episode_id": "ep_train_008",
@@ -1156,7 +1156,7 @@
           "f1": 1.0,
           "reward": 0.998,
           "steps": 2,
-          "elapsed_seconds": 0.015
+          "elapsed_seconds": 0.046
         },
         {
           "episode_id": "ep_train_009",
@@ -1168,7 +1168,7 @@
           "f1": 1.0,
           "reward": 0.998,
           "steps": 2,
-          "elapsed_seconds": 0.0
+          "elapsed_seconds": 0.047
         },
         {
           "episode_id": "ep_train_010",
@@ -1180,31 +1180,31 @@
           "f1": 1.0,
           "reward": 0.998,
           "steps": 2,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.047
         },
         {
           "episode_id": "ep_dev_001",
           "tp": 0,
           "fp": 0,
           "fn": 0,
-          "precision": 1.0,
-          "recall": 1.0,
+          "precision": 0.0,
+          "recall": 0.0,
           "f1": 1.0,
           "reward": 1.0,
           "steps": 1,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.046
         },
         {
           "episode_id": "ep_dev_002",
           "tp": 0,
           "fp": 0,
           "fn": 0,
-          "precision": 1.0,
-          "recall": 1.0,
+          "precision": 0.0,
+          "recall": 0.0,
           "f1": 1.0,
           "reward": 1.0,
           "steps": 1,
-          "elapsed_seconds": 0.0
+          "elapsed_seconds": 0.078
         },
         {
           "episode_id": "ep_dev_003",
@@ -1216,7 +1216,7 @@
           "f1": 1.0,
           "reward": 0.998,
           "steps": 2,
-          "elapsed_seconds": 0.015
+          "elapsed_seconds": 0.046
         },
         {
           "episode_id": "ep_dev_004",
@@ -1228,7 +1228,7 @@
           "f1": 1.0,
           "reward": 0.998,
           "steps": 2,
-          "elapsed_seconds": 0.0
+          "elapsed_seconds": 0.063
         },
         {
           "episode_id": "ep_dev_005",
@@ -1240,7 +1240,7 @@
           "f1": 1.0,
           "reward": 0.998,
           "steps": 2,
-          "elapsed_seconds": 0.0
+          "elapsed_seconds": 0.047
         },
         {
           "episode_id": "ep_dev_006",
@@ -1252,7 +1252,7 @@
           "f1": 1.0,
           "reward": 0.998,
           "steps": 2,
-          "elapsed_seconds": 0.015
+          "elapsed_seconds": 0.031
         },
         {
           "episode_id": "ep_dev_007",
@@ -1264,7 +1264,7 @@
           "f1": 1.0,
           "reward": 0.998,
           "steps": 2,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.031
         },
         {
           "episode_id": "ep_dev_008",
@@ -1276,7 +1276,7 @@
           "f1": 1.0,
           "reward": 0.998,
           "steps": 2,
-          "elapsed_seconds": 0.015
+          "elapsed_seconds": 0.031
         },
         {
           "episode_id": "ep_dev_009",
@@ -1288,7 +1288,7 @@
           "f1": 1.0,
           "reward": 0.998,
           "steps": 2,
-          "elapsed_seconds": 0.0
+          "elapsed_seconds": 0.046
         },
         {
           "episode_id": "ep_dev_010",
@@ -1300,7 +1300,7 @@
           "f1": 1.0,
           "reward": 0.998,
           "steps": 2,
-          "elapsed_seconds": 0.016
+          "elapsed_seconds": 0.047
         }
       ]
     }

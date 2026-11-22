@@ -131,8 +131,8 @@ def test_02_silence_on_clean_books_gives_f1_one_and_high_reward() -> None:
     assert res["tp"] == 0
     assert res["fp"] == 0
     assert res["fn"] == 0
-    assert res["precision"] == 1.0
-    assert res["recall"] == 1.0
+    assert res["precision"] == 0.0
+    assert res["recall"] == 0.0
     assert res["f1"] == 1.0
     assert res["reward"] == pytest.approx(1.0 - 0.002 * 15)
 
@@ -415,7 +415,7 @@ def test_19_id_normalization_handles_whitespace_and_duplicates() -> None:
 
 
 def test_20_compute_metrics_and_reward_clipping_bounds() -> None:
-    assert compute_metrics(0, 0, 0) == {"precision": 1.0, "recall": 1.0, "f1": 1.0}
+    assert compute_metrics(0, 0, 0) == {"precision": 0.0, "recall": 0.0, "f1": 1.0}
     assert compute_metrics(0, 3, 0) == {"precision": 0.0, "recall": 0.0, "f1": 0.0}
     assert compute_metrics(0, 0, 4) == {"precision": 0.0, "recall": 0.0, "f1": 0.0}
 

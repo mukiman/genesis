@@ -204,7 +204,8 @@ class FinAuditEnv:
                 ep_id = self._datastore.get_manifest()["episode_id"]
                 self._evaluator_truth = TruthFile(episode_id=ep_id, issues=[])
         else:
-            generated = self._generate_episode_dynamically(seed=seed, config=cfg)
+            gen_cfg = dict(cfg.get("team_config")) if isinstance(cfg.get("team_config"), dict) else dict(cfg)
+            generated = self._generate_episode_dynamically(seed=seed, config=gen_cfg)
             self._datastore = EpisodeDataStore(episode_data=generated)
             raw_truth = generated.get("truth")
             if raw_truth is not None:
@@ -239,6 +240,7 @@ class FinAuditEnv:
             "task": TASK_DESCRIPTION,
             "manifest": manifest_dict,
             "policy": policy_dict,
+            "remaining_steps": self.max_steps,
             "steps_remaining": self.max_steps,
         }
         info: dict[str, Any] = {
@@ -335,9 +337,11 @@ class FinAuditEnv:
 
         # 1. Prevent post-termination / duplicate submission tampering
         if self._terminated or self._truncated:
+            rem = max(0, self.max_steps - self._step_count)
             obs = {
                 "error": "Episode has already finished. Call reset() to start a new episode.",
-                "steps_remaining": max(0, self.max_steps - self._step_count),
+                "remaining_steps": rem,
+                "steps_remaining": rem,
             }
             info = self._build_step_info()
             assert_no_leaks({"observation": obs, "info": info}, forbidden_tokens=self._forbidden_tokens)
@@ -350,9 +354,11 @@ class FinAuditEnv:
             self._truncated = True
             self._terminated = False
             returned_reward = self._score_empty_truncation("timeout")
+            rem = max(0, self.max_steps - self._step_count)
             obs = {
                 "error": "Episode time limit exceeded. Terminating with empty submission.",
-                "steps_remaining": max(0, self.max_steps - self._step_count),
+                "remaining_steps": rem,
+                "steps_remaining": rem,
             }
             info = self._build_step_info()
             self._record_trajectory_step(action, obs, returned_reward)
@@ -375,22 +381,35 @@ class FinAuditEnv:
             parsed_action = parse_action(action, default_episode_id=self._episode_id)
         except (ValidationError, TypeError, ValueError) as exc:
             self._step_count += 1
+            rem = max(0, self.max_steps - self._step_count)
             if is_submit_attempt:
                 self._terminated = True
                 self._truncated = False
-                raw_sub = action.get("submission") if isinstance(action, dict) else None
+                raw_sub = None
+                if isinstance(action, dict):
+                    raw_sub = (
+                        action.get("submission")
+                        or (action.get("args") if isinstance(action.get("args"), dict) else {}).get("findings")
+                        or action.get("findings")
+                    )
                 eval_res = evaluate_submission(
                     raw_sub,
                     self._evaluator_truth,
                     inspection_steps=self._inspection_steps,
+                    accessible_ids=self._datastore.all_known_ids(),
                 )
+                if not eval_res.get("invalid_structure"):
+                    eval_res["invalid_structure"] = True
+                    eval_res["reward"] = -1.0
+                    eval_res["error"] = f"Invalid submit action structure: {exc}"
                 self._last_evaluation = eval_res
                 if eval_res.get("error"):
                     self._evaluator_log.append(str(eval_res["error"]))
                 returned_reward = float(eval_res["reward"]) if self.mode == "train" else 0.0
                 obs = {
                     "error": "Invalid findings submission structure. Episode terminated with penalty.",
-                    "steps_remaining": max(0, self.max_steps - self._step_count),
+                    "remaining_steps": rem,
+                    "steps_remaining": rem,
                 }
                 info = self._build_step_info()
                 self._record_trajectory_step(action, obs, returned_reward)
@@ -405,7 +424,8 @@ class FinAuditEnv:
                 returned_reward = self._score_empty_truncation("step_limit_reached")
             obs = {
                 "error": f"Invalid action format or arguments: {exc.__class__.__name__}",
-                "steps_remaining": max(0, self.max_steps - self._step_count),
+                "remaining_steps": rem,
+                "steps_remaining": rem,
             }
             info = self._build_step_info()
             self._record_trajectory_step(action, obs, returned_reward)
@@ -414,6 +434,7 @@ class FinAuditEnv:
 
         # 4. Execute valid parsed action
         self._step_count += 1
+        rem = max(0, self.max_steps - self._step_count)
 
         if isinstance(parsed_action, SubmitAction):
             self._terminated = True
@@ -422,6 +443,7 @@ class FinAuditEnv:
                 parsed_action.submission,
                 self._evaluator_truth,
                 inspection_steps=self._inspection_steps,
+                accessible_ids=self._datastore.all_known_ids(),
             )
             self._last_evaluation = eval_res
             returned_reward = float(eval_res["reward"]) if self.mode == "train" else 0.0
@@ -431,16 +453,19 @@ class FinAuditEnv:
                     self._evaluator_log.append(str(eval_res["error"]))
                 obs = {
                     "error": "Invalid findings submission (e.g. episode_id mismatch). Episode terminated.",
-                    "steps_remaining": max(0, self.max_steps - self._step_count),
+                    "remaining_steps": rem,
+                    "steps_remaining": rem,
                 }
             else:
                 obs = {
                     "result": {
+                        "accepted": True,
                         "status": "submitted",
                         "episode_id": self._episode_id,
                         "findings_count": len(parsed_action.submission.findings),
                     },
-                    "steps_remaining": max(0, self.max_steps - self._step_count),
+                    "remaining_steps": rem,
+                    "steps_remaining": rem,
                 }
             info = self._build_step_info()
             self._record_trajectory_step(parsed_action, obs, returned_reward)
@@ -496,6 +521,7 @@ class FinAuditEnv:
             except CalculatorError as exc:
                 obs_payload["error"] = str(exc)
 
+        obs_payload["remaining_steps"] = max(0, self.max_steps - self._step_count)
         obs_payload["steps_remaining"] = max(0, self.max_steps - self._step_count)
 
         returned_reward = 0.0

@@ -83,14 +83,29 @@ def inject_errors(
     cfg = dict(error_config or {})
     rng = random.Random(seed)
 
-    if cfg.get("clean_only", False):
+    if cfg.get("clean_only", False) or cfg.get("clean", False):
         return ep
 
-    n_dup = int(cfg.get("duplicate_invoice", 1))
-    n_pay = int(cfg.get("unallocated_or_partial_payment", 1))
-    n_fx = int(cfg.get("fx_conversion_error", 1))
-    n_cutoff = int(cfg.get("period_cutoff_error", 1))
+    explicit_error_keys = {
+        "duplicate_invoice",
+        "unallocated_or_partial_payment",
+        "unallocated_payment",
+        "partial_payment",
+        "fx_conversion_error",
+        "period_cutoff_error",
+        "interacting_scenarios",
+    }
+    has_explicit_selection = any(k in cfg for k in explicit_error_keys)
+    default_count = 0 if has_explicit_selection else 1
+
+    n_dup = int(cfg.get("duplicate_invoice", default_count))
+    n_pay = int(cfg.get("unallocated_or_partial_payment", default_count))
+    n_unalloc_pay = int(cfg.get("unallocated_payment", 0))
+    n_partial_pay = int(cfg.get("partial_payment", 0))
+    n_fx = int(cfg.get("fx_conversion_error", default_count))
+    n_cutoff = int(cfg.get("period_cutoff_error", default_count))
     interacting_scenarios: list[str] = list(cfg.get("interacting_scenarios", []))
+    payment_error_mode: str = str(cfg.get("payment_error_mode", "partial"))
 
     manifest: Manifest = ep["manifest"]
     policy: PolicyConfig = ep["policy"]
@@ -246,7 +261,7 @@ def inject_errors(
     # -----------------------------------------------------------------------
     # Helper 2: Inject UNALLOCATED_OR_PARTIAL_PAYMENT
     # -----------------------------------------------------------------------
-    def _inject_payment_error(target_inv: InvoiceDoc) -> TruthIssue | None:
+    def _inject_payment_error(target_inv: InvoiceDoc, subtype: str = "partial") -> TruthIssue | None:
         linked_payments = [p for p in payments if target_inv.invoice_id in p.invoice_refs]
         if not linked_payments:
             return None
@@ -276,14 +291,30 @@ def inject_errors(
                 rounding_mode=policy.rounding_mode,
             )
 
-        # Record only ~60% of the expected payment in the ledger, leaving 40% unallocated
-        new_recorded_minor = max(1, (expected_pay_base * 60) // 100)
-        if new_recorded_minor == expected_pay_base:
-            new_recorded_minor = max(0, expected_pay_base - 100)
-        discrepancy_minor = abs(expected_pay_base - new_recorded_minor)
-
-        cash_row.debit_minor = new_recorded_minor
-        ar_row.credit_minor = new_recorded_minor
+        if subtype == "unallocated":
+            # Missed payment allocation: payment is posted in ledger without invoice_id link (0 allocated to invoice)
+            ar_row.invoice_id = None
+            cash_row.invoice_id = None
+            new_recorded_minor = 0
+            discrepancy_minor = expected_pay_base
+            note_desc = (
+                f"Payment {pay_doc.payment_id} for {target_inv.invoice_id} left unallocated in ledger row "
+                f"{ar_row.row_id} (invoice_id=null): expected allocation {expected_pay_base}, allocated 0."
+            )
+            prov_desc = f"Removed invoice_id allocation on ledger row {ar_row.row_id} for payment {pay_doc.payment_id}."
+        else:
+            # Record only ~60% of the expected payment in the ledger, leaving 40% unallocated
+            new_recorded_minor = max(1, (expected_pay_base * 60) // 100)
+            if new_recorded_minor == expected_pay_base:
+                new_recorded_minor = max(0, expected_pay_base - 100)
+            discrepancy_minor = abs(expected_pay_base - new_recorded_minor)
+            cash_row.debit_minor = new_recorded_minor
+            ar_row.credit_minor = new_recorded_minor
+            note_desc = (
+                f"Payment {pay_doc.payment_id} for {target_inv.invoice_id} partially allocated in ledger row "
+                f"{ar_row.row_id}: expected {expected_pay_base}, recorded {new_recorded_minor}."
+            )
+            prov_desc = f"Reduced ledger settlement amount on {ar_row.row_id} for payment {pay_doc.payment_id}."
 
         iss_id = next_issue_id()
         affected = sorted([target_inv.invoice_id, pay_doc.payment_id, ar_row.row_id])
@@ -300,10 +331,7 @@ def inject_errors(
             currency=base_currency,
             valid_evidence_sets=valid_ev,
             tolerance_minor=policy.amount_tolerance_minor,
-            notes=(
-                f"Payment {pay_doc.payment_id} for {target_inv.invoice_id} partially allocated in ledger row "
-                f"{ar_row.row_id}: expected {expected_pay_base}, recorded {new_recorded_minor}."
-            ),
+            notes=note_desc,
         )
         ep["truth"].issues.append(issue)
         ep["provenance"].events.append(
@@ -312,11 +340,13 @@ def inject_errors(
                 stage="error_injection",
                 issue_id=iss_id,
                 issue_type=IssueType.UNALLOCATED_OR_PARTIAL_PAYMENT,
-                description=f"Reduced ledger settlement amount on {ar_row.row_id} for payment {pay_doc.payment_id}.",
-                before_state={"row_id": ar_row.row_id, "credit_minor": expected_pay_base},
+                description=prov_desc,
+                before_state={"row_id": ar_row.row_id, "credit_minor": expected_pay_base, "invoice_id": target_inv.invoice_id},
                 after_state={
                     "row_id": ar_row.row_id,
-                    "credit_minor": new_recorded_minor,
+                    "credit_minor": ar_row.credit_minor,
+                    "allocated_minor": new_recorded_minor,
+                    "invoice_id": ar_row.invoice_id,
                     "discrepancy_minor": discrepancy_minor,
                 },
                 affected_ids=affected,
@@ -501,10 +531,26 @@ def inject_errors(
         if cands:
             _inject_duplicate_invoice(rng.choice(cands))
 
-    for _ in range(n_pay):
+    for pay_idx in range(n_pay):
         cands = candidate_invoices(require_foreign=False)
         if cands:
-            _inject_payment_error(rng.choice(cands))
+            if payment_error_mode == "unallocated":
+                sub = "unallocated"
+            elif payment_error_mode == "both" or pay_idx % 2 == 1:
+                sub = "unallocated"
+            else:
+                sub = "partial"
+            _inject_payment_error(rng.choice(cands), subtype=sub)
+
+    for _ in range(n_unalloc_pay):
+        cands = candidate_invoices(require_foreign=False)
+        if cands:
+            _inject_payment_error(rng.choice(cands), subtype="unallocated")
+
+    for _ in range(n_partial_pay):
+        cands = candidate_invoices(require_foreign=False)
+        if cands:
+            _inject_payment_error(rng.choice(cands), subtype="partial")
 
     for _ in range(n_fx):
         cands = candidate_invoices(require_foreign=True) or candidate_invoices(require_foreign=False)

@@ -28,7 +28,7 @@ def compute_metrics(tp: int, fp: int, fn: int) -> dict[str, float]:
 
     Edge cases:
     - If ground truth is empty (`tp + fn == 0`) and findings are empty (`fp == 0`):
-      `precision = 1.0`, `recall = 1.0`, `f1 = 1.0`.
+      `precision = 0.0`, `recall = 0.0`, `f1 = 1.0` (Section 05 & fintech-checks Test 3).
     - If ground truth is empty (`tp + fn == 0`) but findings are present (`fp > 0`):
       `precision = 0.0`, `recall = 0.0`, `f1 = 0.0`.
     - Otherwise: `P = TP / (TP + FP)` (0.0 if denom == 0),
@@ -39,7 +39,7 @@ def compute_metrics(tp: int, fp: int, fn: int) -> dict[str, float]:
         raise ValueError("TP, FP, and FN must be non-negative integers.")
 
     if tp == 0 and fp == 0 and fn == 0:
-        return {"precision": 1.0, "recall": 1.0, "f1": 1.0}
+        return {"precision": 0.0, "recall": 0.0, "f1": 1.0}
 
     if (tp + fn) == 0 and fp > 0:
         return {"precision": 0.0, "recall": 0.0, "f1": 0.0}
@@ -80,7 +80,9 @@ def evaluate_submission(
     truth: TruthFile | dict[str, Any],
     inspection_steps: int,
     *,
-    default_tolerance_minor: int = 1,
+    default_tolerance_minor: int = 0,
+    accessible_ids: frozenset[str] | set[str] | None = None,
+    check_episode_id: bool = True,
 ) -> dict[str, Any]:
     """Validate and score a submission against ground truth.
 
@@ -131,7 +133,7 @@ def evaluate_submission(
             "missed_issue_ids": [iss.issue_id for iss in truth_obj.issues],
         }
 
-    if sub_obj.episode_id != truth_obj.episode_id:
+    if check_episode_id and sub_obj.episode_id != truth_obj.episode_id:
         return {
             "tp": 0,
             "fp": 0,
@@ -152,7 +154,10 @@ def evaluate_submission(
         }
 
     match_res = match_findings(
-        sub_obj, truth_obj, default_tolerance_minor=default_tolerance_minor
+        sub_obj,
+        truth_obj,
+        default_tolerance_minor=default_tolerance_minor,
+        accessible_ids=accessible_ids,
     )
     metrics = compute_metrics(match_res["tp"], match_res["fp"], match_res["fn"])
     reward = compute_terminal_reward(

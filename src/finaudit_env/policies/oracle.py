@@ -10,13 +10,35 @@ from __future__ import annotations
 from typing import Any
 
 from finaudit_env.policies.base import BasePolicy
-from finaudit_env.schemas import TruthFile
+from finaudit_env.schemas import Finding, FindingsSubmission, TruthFile
 
 
 class OraclePolicy(BasePolicy):
     """Evaluator-only oracle policy that verifies maximum achievable reward."""
 
     name: str = "oracle"
+
+    @staticmethod
+    def build_oracle_submission(truth: TruthFile | dict[str, Any]) -> FindingsSubmission:
+        """Construct an exact oracle `FindingsSubmission` from a closed `TruthFile`."""
+        truth_obj = truth if isinstance(truth, TruthFile) else TruthFile.model_validate(truth)
+        findings_list: list[Finding] = []
+        for issue in truth_obj.issues[:30]:
+            chosen_evidence = list(issue.valid_evidence_sets[0])[:10]
+            findings_list.append(
+                Finding(
+                    type=issue.type,
+                    affected_ids=list(issue.affected_ids),
+                    claimed_amount_minor=int(issue.expected_amount_minor),
+                    currency=issue.currency,
+                    evidence_ids=chosen_evidence,
+                    explanation=(
+                        f"Oracle verified {issue.type.value} on {', '.join(issue.affected_ids)} "
+                        f"with discrepancy {issue.expected_amount_minor} {issue.currency}."
+                    )[:1000],
+                )
+            )
+        return FindingsSubmission(episode_id=truth_obj.episode_id, findings=findings_list)
 
     def __init__(
         self,

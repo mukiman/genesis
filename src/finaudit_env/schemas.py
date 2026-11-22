@@ -12,7 +12,16 @@ from decimal import Decimal, InvalidOperation
 from enum import Enum
 from typing import Annotated, Any, Literal, Union
 
-from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StrictInt,
+    StrictStr,
+    TypeAdapter,
+    field_validator,
+    model_validator,
+)
 
 SCHEMA_VERSION: str = "1.0.0"
 
@@ -208,7 +217,7 @@ class TruthIssue(StrictBaseModel):
         min_length=1,
         description="At least one complete minimal set of evidence IDs sufficient to verify the issue",
     )
-    tolerance_minor: int = Field(default=1, ge=0, description="Allowed minor-unit tolerance for matching")
+    tolerance_minor: int | None = Field(default=None, ge=0, description="Allowed minor-unit tolerance for matching")
     notes: str | None = Field(default=None, description="Evaluator-only diagnostic note")
 
     @model_validator(mode="before")
@@ -222,8 +231,11 @@ class TruthIssue(StrictBaseModel):
                 d["valid_evidence_sets"] = d.pop("allowed_evidence_sets")
             elif "evidence_sets" in d:
                 d["valid_evidence_sets"] = d.pop("evidence_sets")
-        if "tolerance_minor" not in d and "amount_tolerance_minor" in d:
-            d["tolerance_minor"] = d.pop("amount_tolerance_minor")
+        if "tolerance_minor" not in d:
+            for tol_alias in ("amount_tolerance_minor", "tau", "tolerance"):
+                if tol_alias in d:
+                    d["tolerance_minor"] = d.pop(tol_alias)
+                    break
         return d
 
     @field_validator("currency")
@@ -280,17 +292,41 @@ class ProvenanceFile(StrictBaseModel):
 class Finding(StrictBaseModel):
     """Single audit finding submitted by an agent."""
 
-    type: IssueType
-    affected_ids: list[str] = Field(..., min_length=1)
-    claimed_amount_minor: int = Field(..., ge=0)
-    currency: str = Field(..., min_length=3, max_length=3)
-    evidence_ids: list[str] = Field(..., min_length=1, max_length=10)
-    explanation: str = Field(..., min_length=1, max_length=1000)
+    type: IssueType | StrictStr = Field(..., description="Documented issue type string")
+    affected_ids: list[StrictStr] = Field(..., min_length=1)
+    claimed_amount_minor: StrictInt = Field(..., ge=0)
+    currency: StrictStr = Field(..., min_length=1)
+    evidence_ids: list[StrictStr] = Field(..., min_length=1, max_length=10)
+    explanation: StrictStr = Field(..., min_length=1, max_length=1000)
 
-    @field_validator("currency")
+    @field_validator("type", mode="before")
     @classmethod
-    def validate_currency(cls, value: str) -> str:
-        return _validate_currency_code(value)
+    def validate_type_field(cls, value: Any) -> IssueType | str:
+        if isinstance(value, IssueType):
+            return value
+        if not isinstance(value, str) or len(value) == 0:
+            raise ValueError("Finding 'type' must be a non-empty string.")
+        try:
+            return IssueType(value)
+        except ValueError:
+            # Rule 8 of fintech-checks: unknown string issue type is structurally valid
+            # and must be scored as an unmatched FP rather than a structural crash (-1).
+            return value
+
+    @field_validator("claimed_amount_minor", mode="before")
+    @classmethod
+    def validate_strict_int_amount(cls, value: Any) -> int:
+        if type(value) is not int:
+            raise ValueError("claimed_amount_minor must be a strict JSON integer (not bool, str, or float).")
+        return value
+
+    @field_validator("affected_ids", "evidence_ids")
+    @classmethod
+    def validate_non_empty_id_strings(cls, value: list[str]) -> list[str]:
+        for item in value:
+            if not isinstance(item, str) or len(item) == 0:
+                raise ValueError("IDs in affected_ids and evidence_ids must be non-empty strings.")
+        return value
 
 
 class FindingsSubmission(StrictBaseModel):
@@ -399,12 +435,19 @@ def parse_action(
                         d["submission"] = d.pop(sub_alias)
                         break
             if "submission" not in d and "findings" in d:
-                sub_dict: dict[str, Any] = {"findings": d.pop("findings")}
-                if "episode_id" in d:
-                    sub_dict["episode_id"] = d.pop("episode_id")
-                elif default_episode_id:
-                    sub_dict["episode_id"] = default_episode_id
-                d["submission"] = sub_dict
+                raw_findings_val = d.pop("findings")
+                if isinstance(raw_findings_val, dict):
+                    sub_copy = dict(raw_findings_val)
+                    if "episode_id" not in sub_copy and "findings" in sub_copy and default_episode_id:
+                        sub_copy["episode_id"] = default_episode_id
+                    d["submission"] = sub_copy
+                else:
+                    sub_dict: dict[str, Any] = {"findings": raw_findings_val}
+                    if "episode_id" in d:
+                        sub_dict["episode_id"] = d.pop("episode_id")
+                    elif default_episode_id:
+                        sub_dict["episode_id"] = default_episode_id
+                    d["submission"] = sub_dict
             elif isinstance(d.get("submission"), dict):
                 sub_copy = dict(d["submission"])
                 if "episode_id" not in sub_copy and "findings" in sub_copy and default_episode_id:

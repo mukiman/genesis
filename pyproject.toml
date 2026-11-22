@@ -16,12 +16,13 @@ dependencies = [
 
 [tool.setuptools]
 package-dir = {"" = "src"}
+py-modules = ["judge_adapter"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["finaudit_env*"]
 
 [tool.pytest.ini_options]
-pythonpath = ["src"]
+pythonpath = [".", "src"]
 testpaths = ["tests"]
 addopts = "-q"
