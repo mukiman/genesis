@@ -437,12 +437,15 @@ def parse_action(
             if "submission" not in d and "findings" in d:
                 raw_findings_val = d.pop("findings")
                 if isinstance(raw_findings_val, dict):
-                    sub_copy = dict(raw_findings_val)
-                    if "episode_id" not in sub_copy and "findings" in sub_copy and default_episode_id:
-                        sub_copy["episode_id"] = default_episode_id
-                    d["submission"] = sub_copy
+                    sub_dict = dict(raw_findings_val)
+                    if "episode_id" not in sub_dict and "findings" in sub_dict:
+                        if "episode_id" in d:
+                            sub_dict["episode_id"] = d.pop("episode_id")
+                        elif default_episode_id:
+                            sub_dict["episode_id"] = default_episode_id
+                    d["submission"] = sub_dict
                 else:
-                    sub_dict: dict[str, Any] = {"findings": raw_findings_val}
+                    sub_dict = {"findings": raw_findings_val}
                     if "episode_id" in d:
                         sub_dict["episode_id"] = d.pop("episode_id")
                     elif default_episode_id:
