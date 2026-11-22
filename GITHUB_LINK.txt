@@ -1,0 +1,14 @@
+GENESIS HACKATHON // FINTECH — RL-среды для дообучения моделей финансового аудита
+Команда: Маги (код ZRVYSP)
+Участники:
+- Мусалим Мұхаммедияр (@muk1man) — Капитан
+- Slam Kuanysh (@kukadev)
+
+GitHub Repository URL:
+https://github.com/mukiman/genesis
+
+Единая команда полной оффлайн-проверки:
+python -m finaudit_env.verify_all
+
+Официальный адаптер жюри (fintech-checks.html):
+judge_adapter.py (generate_episode, make_env, score_episode)

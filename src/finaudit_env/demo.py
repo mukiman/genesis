@@ -325,7 +325,7 @@ def run_demo(seed: int = 42, config: dict[str, Any] | None = None) -> dict[str, 
     """Run a demonstration episode across the 4 baseline policies and return the summary."""
     cfg = dict(config or {})
     if "episode_dir" not in cfg and "episode_data" not in cfg:
-        train_ep = Path("data/train/ep_train_001")
+        train_ep = Path("data/train/ep_train_003")
         if (train_ep / "manifest.json").is_file() or (train_ep / "public" / "manifest.json").is_file():
             cfg["episode_dir"] = train_ep
         else:
